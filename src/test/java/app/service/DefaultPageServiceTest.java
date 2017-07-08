@@ -1,9 +1,10 @@
-package app.page;
+package app.service;
 
+import app.data.AllPages;
+import app.data.Page;
 import org.junit.Test;
 
 import javax.ws.rs.NotFoundException;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,56 +13,55 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class DefaultPageManagerTest {
+public class DefaultPageServiceTest {
 
     @Test(expected = NotFoundException.class)
-    public void invalidEnvironmentShouldThrowException() throws IOException {
+    public void invalidPageNameShouldThrowException() throws IOException {
+        Set<String> pageNames = Collections.singleton("foo");
 
-        PageManager manager =
-                new DefaultPageManager(Collections.singleton("foo"), new File("/tmp"));
+        PageService service = new DefaultPageService(pageNames, "/tmp");
 
-        manager.activatePage("bar");
-        manager.deactivatePage("bar");
-        manager.getPageState("bar");
+        service.activatePage("bar");
+        service.deactivatePage("bar");
+        service.getPage("bar");
     }
 
     @Test
-    public void getPageStatesReturnsAllEnvironments() throws IOException {
-        Set<String> environments = new HashSet<>();
-        environments.add("foo");
-        environments.add("bar");
+    public void getPagesReturnsAllNames() throws IOException {
+        Set<String> pageNames = new HashSet<>();
+        pageNames.add("foo");
+        pageNames.add("bar");
 
-        PageManager manager =
-                new DefaultPageManager(environments, new File("/tmp"));
+        PageService service = new DefaultPageService(pageNames, "/tmp");
 
-        PageStates pageStates = manager.getPageStates();
-        Set<String> returnedEnvironments = new HashSet<>();
-        for (PageState state : pageStates.getEnvironments()) {
-            returnedEnvironments.add(state.getEnvironmentName());
+        AllPages allPages = service.getPages();
+        Set<String> returnedPageNames = new HashSet<>();
+        for (Page state : allPages.getPages()) {
+            returnedPageNames.add(state.getName());
         }
-        assertEquals(environments, returnedEnvironments);
+        assertEquals(pageNames, returnedPageNames);
     }
 
     @Test
-    public void getPageStateConsistentWithGetPageStates() {
+    public void getPageConsistentWithGetPages() {
         // TODO
         // create files for a couple of environments
-        // call getPageStates() and cross-check the result with getPageState() for each
+        // call getPages() and cross-check the result with getPage() for each
         // should return the same state
         fail();
     }
 
     @Test
-    public void getPageStateReturnsCorrectState() {
+    public void getPageReturnsCorrectState() {
         // TODO
         // put state file into workdir, e.g. for 'foo'
-        // then call getPageState('foo') and check if the state
+        // then call getPage('foo') and check if the state
         // gets parsed correctly
         fail();
     }
 
     @Test
-    public void activatePageStateChangesState() {
+    public void activatePageChangesState() {
 
         // TODO
         // put state file into workdir, e.g. for 'foo'
@@ -74,7 +74,7 @@ public class DefaultPageManagerTest {
     }
 
     @Test
-    public void deactivatePageStateChangesState() {
+    public void deactivatePageChangesState() {
 
         // TODO
         // put state file into workdir, e.g. for 'foo'

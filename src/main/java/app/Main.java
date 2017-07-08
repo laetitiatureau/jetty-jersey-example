@@ -1,33 +1,34 @@
 package app;
 
-import app.rs.PageManagerResource;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 
-public class Main {
-    public static void main(String[] args) throws Exception {
-        ServletContextHandler context = new ServletContextHandler(
-                ServletContextHandler.NO_SESSIONS);
-        context.setContextPath("/");
+import javax.ws.rs.core.UriBuilder;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import java.util.Properties;
 
-        Server jettyServer = new Server(8080);
-        jettyServer.setHandler(context);
+public class Main extends ResourceConfig {
+    public Main() throws IOException {
+        packages("app.resource");
 
-        ServletHolder jerseyServlet = context.addServlet(
-                org.glassfish.jersey.servlet.ServletContainer.class, "/*");
-        jerseyServlet.setInitOrder(0);
-
-        // Tells the Jersey Servlet which REST service/class to load.
-        jerseyServlet.setInitParameter(
-                "jersey.config.server.provider.classnames",
-                PageManagerResource.class.getCanonicalName());
-
-        try {
-            jettyServer.start();
-            jettyServer.join();
-        } finally {
-            jettyServer.destroy();
+        final Properties properties = new Properties();
+        properties.load(Main.class.getResourceAsStream("/app.properties"));
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            property(entry.getKey().toString(), entry.getValue());
         }
     }
+
+    public static void main(String[] args) throws Exception {
+        Main main = new Main();
+        String uri = main.getProperty("http.uri").toString();
+        int port = Integer.parseInt(main.getProperty("http.port").toString());
+        URI baseUri = UriBuilder.fromUri(uri).port(port).build();
+        HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, main);
+        System.in.read();
+        server.shutdown();
+    }
 }
+

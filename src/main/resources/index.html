@@ -17,11 +17,11 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>Environment</th>
+                        <th>Page</th>
                         <th>Active</th>
                     </tr>
                     </thead>
-                    <tbody id="pageStates">
+                    <tbody id="allPages">
                     </tbody>
                 </table>
             </div>
@@ -33,23 +33,23 @@
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
 <script>
-        function lookupPageState() {
+        function lookupPages() {
           $.ajax({
             type: 'GET',
             url: '/',
             dataType: 'json',
-            success: renderPageStates
+            success: renderPages
           });
         }
 
-        function renderPageStates(json) {
-          $("#pageStates").empty()
-          $.each(json.environments, function(idx, env) {
-            $("#pageStates").append('<tr><td>' + env.environmentName + '</td><td>' + env.active + '</td></tr>');
+        function renderPages(json) {
+          $("#allPages").empty()
+          $.each(json.pages, function(idx, page) {
+            $("#allPages").append('<tr><td>' + page.name + '</td><td><span class="label label-success">' + page.active + '</span></td></tr>');
           });
         }
 
-        $(document).ready(lookupPageState)
+        $(document).ready(lookupPages)
 </script>
 </body>
 </html>
