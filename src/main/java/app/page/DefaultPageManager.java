@@ -15,7 +15,7 @@ public class DefaultPageManager implements PageManager {
     private final File workDir;
 
     public DefaultPageManager(final File workDir) throws URISyntaxException, IOException {
-        this(DefaultPageManager.class.getResource("environments.txt"), workDir);
+        this(DefaultPageManager.class.getResource("/environments.txt"), workDir);
     }
 
     private DefaultPageManager(final URL environmentsFile, final File workDir) throws URISyntaxException, IOException {

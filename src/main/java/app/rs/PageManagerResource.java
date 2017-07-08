@@ -7,12 +7,17 @@ import app.page.PageStates;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.IOException;
+import javax.ws.rs.core.Response;
+import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 
 @Path("/")
 public class PageManagerResource {
@@ -29,7 +34,7 @@ public class PageManagerResource {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public String getIndex() throws URISyntaxException, IOException {
-        URL url = getClass().getResource("index.html");
+        URL url = getClass().getResource("/index.html");
         java.nio.file.Path path = Paths.get(url.toURI());
         return new String(Files.readAllBytes(path));
     }
