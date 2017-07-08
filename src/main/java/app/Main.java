@@ -26,9 +26,22 @@ public class Main extends ResourceConfig {
         String uri = main.getProperty("http.uri").toString();
         int port = Integer.parseInt(main.getProperty("http.port").toString());
         URI baseUri = UriBuilder.fromUri(uri).port(port).build();
-        HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, main);
-        System.in.read();
-        server.shutdown();
+        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, main);
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Stopping server..");
+                server.shutdown();
+            }
+        }));
+
+        try {
+            server.start();
+            System.out.println("Press CTRL^C to exit..");
+            Thread.currentThread().join();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 
