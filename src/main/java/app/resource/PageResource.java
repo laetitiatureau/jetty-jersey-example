@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
-@Path("/")
+@Path("/pages")
 public class PageResource {
     private PageService service;
 

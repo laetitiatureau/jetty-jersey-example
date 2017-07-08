@@ -45,6 +45,6 @@ public class Page {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, active);
+        return Objects.hash(active, name);
     }
 }
