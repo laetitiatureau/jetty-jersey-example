@@ -1,7 +1,7 @@
 function lookupPages() {
   $.ajax({
     type: 'GET',
-    url: '/pages',
+    url: '/app/pages',
     dataType: 'json',
     success: renderPages
   });

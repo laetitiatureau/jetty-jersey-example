@@ -1,10 +1,11 @@
 package app.resource;
 
-import app.data.PageList;
 import app.data.Page;
+import app.data.PageList;
 import app.service.DefaultPageService;
 import app.service.PageService;
 
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
@@ -12,7 +13,8 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-@Path("/pages")
+@Singleton
+@Path("pages")
 @Produces(MediaType.APPLICATION_JSON)
 public class PageResource {
     private PageService service;

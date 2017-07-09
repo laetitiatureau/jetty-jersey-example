@@ -1,7 +1,7 @@
 package app.service;
 
-import app.data.PageList;
 import app.data.Page;
+import app.data.PageList;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Configuration;
