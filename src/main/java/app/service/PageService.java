@@ -1,12 +1,12 @@
 package app.service;
 
-import app.data.AllPages;
+import app.data.PageList;
 import app.data.Page;
 
 public interface PageService {
     Page getPage(String pageName);
 
-    AllPages getPages();
+    PageList getPageList();
 
     Page activatePage(String pageName);
 

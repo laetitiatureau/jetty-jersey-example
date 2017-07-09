@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class AllPages {
+public class PageList {
     private List<Page> pages;
-    public AllPages() {
+    public PageList() {
 
     }
 
-    public AllPages(final Collection<Page> pages) {
+    public PageList(final Collection<Page> pages) {
         this.pages = new LinkedList<>();
         this.pages.addAll(pages);
     }

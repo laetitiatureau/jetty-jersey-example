@@ -1,5 +1,8 @@
 package app;
 
+import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
+import org.glassfish.grizzly.http.server.HttpHandler;
+import org.glassfish.grizzly.http.server.HttpHandlerRegistration;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -14,7 +17,11 @@ public class Main extends ResourceConfig {
     public Main() throws IOException {
         packages("app.resource");
 
-        final Properties properties = new Properties();
+        loadConfig();
+    }
+
+    private void loadConfig() throws IOException {
+        Properties properties = new Properties();
         properties.load(Main.class.getResourceAsStream("/app.properties"));
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             property(entry.getKey().toString(), entry.getValue());
@@ -27,6 +34,9 @@ public class Main extends ResourceConfig {
         int port = Integer.parseInt(main.getProperty("http.port").toString());
         URI baseUri = UriBuilder.fromUri(uri).port(port).build();
         final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, main);
+        HttpHandler staticHandler = new CLStaticHttpHandler(Main.class.getClassLoader(), "/static/");
+        server.getServerConfiguration().addHttpHandler(staticHandler,"/static/*");
+
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {

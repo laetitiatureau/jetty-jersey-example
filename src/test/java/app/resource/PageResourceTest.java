@@ -1,6 +1,6 @@
 package app.resource;
 
-import app.data.AllPages;
+import app.data.PageList;
 import app.data.Page;
 import app.service.PageService;
 import com.google.gson.Gson;
@@ -50,7 +50,7 @@ public class PageResourceTest extends JerseyTest {
         this.pageIndex = Collections.unmodifiableMap(pageIndex);
         this.service = mock(PageService.class);
 
-        when(service.getPages()).thenReturn(new AllPages(pages));
+        when(service.getPageList()).thenReturn(new PageList(pages));
         when(service.getPage(fooPage.getName())).thenReturn(fooPage);
         when(service.getPage(barPage.getName())).thenReturn(barPage);
         when(service.activatePage(activatedPage.getName())).thenReturn(activatedPage);
@@ -65,16 +65,10 @@ public class PageResourceTest extends JerseyTest {
     }
 
     @Test
-    public void getPagesAsWebPage() {
-        Response response = target().request(MediaType.TEXT_HTML).get();
-        assertEquals(200, response.getStatus());
-    }
-
-    @Test
     public void getPagesAsJson() {
-        Response response = target().request(MediaType.APPLICATION_JSON).get();
+        Response response = target("/pages").request(MediaType.APPLICATION_JSON).get();
         assertEquals(200, response.getStatus());
-        AllPages result = gson.fromJson(response.readEntity(String.class), AllPages.class);
+        PageList result = gson.fromJson(response.readEntity(String.class), PageList.class);
         Set<Page> resultPages = new HashSet<>(result.getPages());
         assertEquals(pages, resultPages);
     }
@@ -87,7 +81,7 @@ public class PageResourceTest extends JerseyTest {
     }
 
     public void getExistingPageAsJson(String name) {
-        Response response = target(name).request(MediaType.APPLICATION_JSON).get();
+        Response response = target("/pages/" + name).request(MediaType.APPLICATION_JSON).get();
         assertEquals(200, response.getStatus());
         Page resultPage = gson.fromJson(response.readEntity(String.class), Page.class);
         assertEquals(pageIndex.get(name), resultPage);
@@ -95,14 +89,14 @@ public class PageResourceTest extends JerseyTest {
 
     @Test
     public void getOfInvalidPageReturns404() {
-        Response response = target("invalid").request(MediaType.APPLICATION_JSON).get();
+        Response response = target("/pages/invalid").request(MediaType.APPLICATION_JSON).get();
         assertEquals(404, response.getStatus());
     }
 
     @Test
     public void activatePage() {
         final String pageName = "activated";
-        Response response = target(pageName).request(MediaType.APPLICATION_JSON)
+        Response response = target("/pages/" + pageName).request(MediaType.APPLICATION_JSON)
                 .put(Entity.json(""));
         assertEquals(200, response.getStatus());
         Page resultPage = gson.fromJson(response.readEntity(String.class), Page.class);
@@ -112,7 +106,7 @@ public class PageResourceTest extends JerseyTest {
     @Test
     public void deactivatePage() {
         final String pageName = "deactivated";
-        Response response = target(pageName).request(MediaType.APPLICATION_JSON).delete();
+        Response response = target("/pages/" + pageName).request(MediaType.APPLICATION_JSON).delete();
         assertEquals(200, response.getStatus());
         Page resultPage = gson.fromJson(response.readEntity(String.class), Page.class);
         assertEquals(pageIndex.get(pageName), resultPage);
@@ -120,13 +114,13 @@ public class PageResourceTest extends JerseyTest {
 
     @Test
     public void activateInvalidPage() {
-        Response response = target("invalid").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
+        Response response = target("/pages/invalid").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
         assertEquals(404, response.getStatus());
     }
 
     @Test
     public void deactivateInvalidPage() {
-        Response response = target("invalid").request(MediaType.APPLICATION_JSON).delete();
+        Response response = target("/pages/invalid").request(MediaType.APPLICATION_JSON).delete();
         assertEquals(404, response.getStatus());
     }
 }

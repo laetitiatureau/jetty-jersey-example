@@ -1,6 +1,6 @@
 package app.service;
 
-import app.data.AllPages;
+import app.data.PageList;
 import app.data.Page;
 import org.junit.Test;
 
@@ -34,9 +34,9 @@ public class DefaultPageServiceTest {
 
         PageService service = new DefaultPageService(pageNames, "/tmp");
 
-        AllPages allPages = service.getPages();
+        PageList pageList = service.getPageList();
         Set<String> returnedPageNames = new HashSet<>();
-        for (Page state : allPages.getPages()) {
+        for (Page state : pageList.getPages()) {
             returnedPageNames.add(state.getName());
         }
         assertEquals(pageNames, returnedPageNames);
@@ -46,7 +46,7 @@ public class DefaultPageServiceTest {
     public void getPageConsistentWithGetPages() {
         // TODO
         // create files for a couple of environments
-        // call getPages() and cross-check the result with getPage() for each
+        // call getPageList() and cross-check the result with getPage() for each
         // should return the same state
         fail();
     }
