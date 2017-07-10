@@ -104,8 +104,21 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
+                <goals>
+                    <goal>java</goal>
+                </goals>
                 <configuration>
                     <mainClass>app.Main</mainClass>
+                    <systemProperties>
+                        <property>
+                            <key>pages</key>
+                            <value>page1,page2,page3</value>
+                        </property>
+                        <property>
+                            <key>http.port</key>
+                            <value>8000</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,12 +1,25 @@
+Run `mvn clean package` and then start server with:
+ 
+ ```
+ java -Dpages=foo,bar,baz [...] -jar <jar-file>
+ ```
 
-Compile and run with:
+You can customize the following config settings:
+ - pages     -- comma separated list of page names (mandatory)
+ - workdir   -- directory for the datastore - (optional, default: tmp folder -
+                files will be deleted on shutdown)
+ - http.port -- which port to run on          (optional, default: 8080)
+ - http.uri  -- which interfaces to listen on (optional, default: http://0.0.0.0)
+
+
+You can also start the server with with maven:
 
 ```
 mvn clean compile exec:java
 ```
 
-You can also just run `mvn clean package` and then start the jar file with `java -jar xxx.jar`.
-
+but this is only useful during development.
+ 
 
 The index page is at `http://localhost:8080`. This will load `src/main/resource/static/index.html`
 which contains a bit of javascript to call the web service.

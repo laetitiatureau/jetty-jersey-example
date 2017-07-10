@@ -7,8 +7,11 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.ws.rs.core.UriBuilder;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -16,25 +19,50 @@ import java.util.logging.Logger;
 
 public class Main extends ResourceConfig {
     private static final Logger logger = Logger.getGlobal();
+    private static final String HTTP_URI = "http.uri";
+    private static final String HTTP_PORT = "http.port";
+    private static final String WORKDIR = "workdir";
 
-    public Main() throws IOException {
+    private Main() throws IOException {
         packages("app.resource");
         loadConfig();
     }
 
     private void loadConfig() throws IOException {
-        Properties properties = new Properties();
-        properties.load(Main.class.getResourceAsStream("/app.properties"));
-        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            property(entry.getKey().toString(), entry.getValue());
+        Properties props = System.getProperties();
+
+        Map<String, Object> cfg = new LinkedHashMap<>();
+        cfg.put(HTTP_URI, props.getProperty(HTTP_URI, "http://0.0.0.0"));
+        cfg.put(HTTP_PORT, Integer.parseInt(props.getProperty(HTTP_PORT, "8080")));
+
+        String workDir = props.getProperty(WORKDIR);
+        if (workDir != null) {
+            cfg.put(WORKDIR, workDir);
+        } else {
+            File tmpWorkDir = Files.createTempDirectory(null).toFile();
+            tmpWorkDir.deleteOnExit();
+            cfg.put(WORKDIR, tmpWorkDir.toString());
+            logger.warning("Config setting for 'workdir' not defined - " +
+                    "using temporary directory. Files will be deleted on shutdown.");
         }
+
+        if (props.getProperty("pages") == null) {
+            throw new RuntimeException("Config setting for 'pages' (comma-separated list of valid pagenames) not defined");
+        }
+        cfg.put("pages", props.getProperty("pages"));
+
+        for (Map.Entry<String, Object> entry : cfg.entrySet()) {
+            logger.info("config: " + entry.getKey() + "=" + entry.getValue());
+        }
+
+        addProperties(cfg);
     }
 
     public static void main(String[] args) throws Exception {
         Main main = new Main();
 
-        String uri = main.getProperty("http.uri").toString();
-        int port = Integer.parseInt(main.getProperty("http.port").toString());
+        String uri = main.getProperty(HTTP_URI).toString();
+        int port = (int) main.getProperty(HTTP_PORT);
         URI baseUri = UriBuilder.fromUri(uri).path("app").port(port).build();
 
         final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, main);
