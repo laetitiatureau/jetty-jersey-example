@@ -1,3 +1,6 @@
+[![Build
+Status](https://travis-ci.org/aski/jetty-jersey-example.svg?branch=master)](https://travis-ci.org/aski/jetty-jersey-example)
+
 Run `mvn clean package` and then start server with:
  
  ```
