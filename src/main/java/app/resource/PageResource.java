@@ -16,7 +16,7 @@ import java.io.IOException;
 @Path("pages")
 @Produces(MediaType.APPLICATION_JSON)
 public class PageResource {
-    private PageService service;
+    private final PageService service;
 
     public PageResource(@Context Configuration config) throws IOException {
         this(new DefaultPageService(config));

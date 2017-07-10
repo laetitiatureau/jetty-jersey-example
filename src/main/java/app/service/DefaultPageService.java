@@ -19,7 +19,7 @@ public class DefaultPageService implements PageService {
         this(loadPagesFromConfig(config), lookupConfigValue(config, "workdir"));
     }
 
-    public DefaultPageService(final Collection<String> pageNames, final String workdir) throws IOException {
+    public DefaultPageService(final Collection<String> pageNames, final String workdir) {
         File dir = new File(workdir);
         if (!dir.exists() || !dir.canWrite()) {
             throw new PageServiceException("Can't access workdir: " + workdir);
@@ -38,7 +38,7 @@ public class DefaultPageService implements PageService {
 
     @Override
     public Page getPage(final String pageName) {
-        if (!isValidPageName(pageName)) {
+        if (isInvalidPageName(pageName)) {
             throw new NotFoundException();
         }
 
@@ -64,7 +64,7 @@ public class DefaultPageService implements PageService {
 
     @Override
     public Page activatePage(final String pageName) {
-        if (!isValidPageName(pageName)) {
+        if (isInvalidPageName(pageName)) {
             throw new NotFoundException();
         }
 
@@ -80,7 +80,7 @@ public class DefaultPageService implements PageService {
 
     @Override
     public Page deactivatePage(final String pageName) {
-        if (!isValidPageName(pageName)) {
+        if (isInvalidPageName(pageName)) {
             throw new NotFoundException();
         }
 
@@ -133,8 +133,8 @@ public class DefaultPageService implements PageService {
         }
     }
 
-    private boolean isValidPageName(final String pageName) {
-        return pageName != null && allPageNames.contains(pageName.toLowerCase());
+    private boolean isInvalidPageName(final String pageName) {
+        return pageName == null || !allPageNames.contains(pageName.toLowerCase());
     }
 
     private static Collection<String> loadPagesFromConfig(final Configuration config) {

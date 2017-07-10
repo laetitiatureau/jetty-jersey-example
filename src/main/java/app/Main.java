@@ -17,7 +17,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Main extends ResourceConfig {
+class Main extends ResourceConfig {
     private static final Logger logger = Logger.getGlobal();
     private static final String HTTP_URI = "http.uri";
     private static final String HTTP_PORT = "http.port";

@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 public class PageResourceTest extends JerseyTest {
     private Map<String, Page> pageIndex;
     private Set<Page> pages;
-    private PageService service;
     private Gson gson;
 
     @Override
@@ -48,7 +47,7 @@ public class PageResourceTest extends JerseyTest {
         this.gson = new Gson();
         this.pages = Collections.unmodifiableSet(pages);
         this.pageIndex = Collections.unmodifiableMap(pageIndex);
-        this.service = mock(PageService.class);
+        PageService service = mock(PageService.class);
 
         when(service.getPageList()).thenReturn(new PageList(pages));
         when(service.getPage(fooPage.getName())).thenReturn(fooPage);
@@ -80,7 +79,7 @@ public class PageResourceTest extends JerseyTest {
         }
     }
 
-    public void getExistingPageAsJson(String name) {
+    private void getExistingPageAsJson(String name) {
         Response response = target("/pages/" + name).request(MediaType.APPLICATION_JSON).get();
         assertEquals(200, response.getStatus());
         Page resultPage = gson.fromJson(response.readEntity(String.class), Page.class);
