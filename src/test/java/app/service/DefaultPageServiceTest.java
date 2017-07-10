@@ -1,28 +1,38 @@
 package app.service;
 
-import app.data.PageList;
 import app.data.Page;
+import app.data.PageList;
 import org.junit.Test;
 
 import javax.ws.rs.NotFoundException;
+import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class DefaultPageServiceTest {
 
     @Test(expected = NotFoundException.class)
-    public void invalidPageNameShouldThrowException() throws IOException {
+    public void activateForinvalidPageNameShouldThrowException() throws IOException {
         Set<String> pageNames = Collections.singleton("foo");
-
         PageService service = new DefaultPageService(pageNames, "/tmp");
-
         service.activatePage("bar");
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void deactivateForinvalidPageNameShouldThrowException() throws IOException {
+        Set<String> pageNames = Collections.singleton("foo");
+        PageService service = new DefaultPageService(pageNames, "/tmp");
         service.deactivatePage("bar");
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void getPageForinvalidPageNameShouldThrowException() throws IOException {
+        Set<String> pageNames = Collections.singleton("foo");
+        PageService service = new DefaultPageService(pageNames, "/tmp");
         service.getPage("bar");
     }
 
@@ -43,46 +53,103 @@ public class DefaultPageServiceTest {
     }
 
     @Test
-    public void getPageConsistentWithGetPages() {
-        // TODO
-        // create files for a couple of environments
-        // call getPageList() and cross-check the result with getPage() for each
-        // should return the same state
-        fail();
+    public void getPageConsistentWithGetPages() throws IOException {
+        final Set<String> allPages = new HashSet<>(Arrays.asList("foo", "bar", "baz"));
+        final String tempDir = Files.createTempDirectory(null).toString();
+
+        new File(tempDir, "foo").createNewFile();
+        new File(tempDir, "baz").createNewFile();
+
+        PageService pageService = new DefaultPageService(allPages, tempDir);
+
+        for (Page bulkPage : pageService.getPageList().getPages()) {
+            Page singlePage = pageService.getPage(bulkPage.getName());
+            assertEquals(bulkPage, singlePage);
+        }
     }
 
     @Test
-    public void getPageReturnsCorrectState() {
-        // TODO
-        // put state file into workdir, e.g. for 'foo'
-        // then call getPage('foo') and check if the state
-        // gets parsed correctly
-        fail();
+    public void getPageForPageReturnsCorrectState() throws IOException {
+        final String tempDir = Files.createTempDirectory(null).toString();
+        final String pageName = "foo";
+        final File pageFile = new File(tempDir, pageName);
+        pageFile.createNewFile();
+
+        PageService pageService = new DefaultPageService(
+                Collections.singleton(pageName), tempDir);
+
+        Page page = pageService.getPage(pageName);
+
+        assertEquals(pageName, page.getName());
+        assertEquals(true, page.isActive());
+
+        pageFile.delete();
+
+        Page pageAfterDelete = pageService.getPage(pageName);
+
+        assertEquals(pageName, pageAfterDelete.getName());
+        assertEquals(false, pageAfterDelete.isActive());
     }
 
     @Test
-    public void activatePageChangesState() {
+    public void activatePageChangesState() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+        final String pageName = "foo";
+        final File pageFile = new File(tempDir, pageName);
 
-        // TODO
-        // put state file into workdir, e.g. for 'foo'
-        // with state 'inactive'
-        // call activatePage('foo') and examine the result. should have been updated
-        // to 'active'
-        // ... run the same test with initial state 'active', the file shouldnt
-        // be touched at all (compare timestamp)
-        fail();
+        PageService pageService = new DefaultPageService(
+                Collections.singleton(pageName), tempDir.toString());
+
+        assertFalse(pageFile.exists());
+        Page page = pageService.activatePage(pageName);
+        assertTrue(pageFile.exists());
+        assertTrue(page.isActive());
     }
 
     @Test
-    public void deactivatePageChangesState() {
+    public void deactivatePageChangesState() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+        final String pageName = "foo";
+        final File pageFile = new File(tempDir, pageName);
+        pageFile.createNewFile();
 
-        // TODO
-        // put state file into workdir, e.g. for 'foo'
-        // with state 'active'
-        // call deactivatePage('foo') and examine the result. should have been updated
-        // to 'inactive'
-        // ... run the same test with initial state 'inactive', the file shouldnt
-        // be touched at all (compare timestamp)
-        fail();
+        PageService pageService = new DefaultPageService(
+                Collections.singleton(pageName), tempDir.toString());
+
+        assertTrue(pageFile.exists());
+        Page page = pageService.deactivatePage(pageName);
+        assertFalse(pageFile.exists());
+        assertFalse(page.isActive());
+
+        pageService.deactivatePage(pageName);
+    }
+
+    @Test
+    public void deactivateInactivePageIsIgnored() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+        final String pageName = "foo";
+        PageService pageService = new DefaultPageService(
+                Collections.singleton(pageName), tempDir.toString());
+        pageService.deactivatePage(pageName);
+    }
+
+    @Test(expected = PageServiceException.class)
+    public void workDirDoesntExist() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+        final String nonExistingDir = new File(tempDir, "foo").toString();
+        new DefaultPageService(Collections.singleton("foo"), nonExistingDir);
+    }
+
+    @Test(expected = PageServiceException.class)
+    public void workDirReadOnly() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+        final File readOnlyDir = new File(tempDir, "foo");
+        readOnlyDir.setReadOnly();
+        new DefaultPageService(Collections.singleton("foo"), readOnlyDir.toString());
     }
 }

@@ -7,27 +7,33 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Configuration;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DefaultPageService implements PageService {
     private final Set<String> allPageNames;
+    private final Map<String, ReentrantReadWriteLock> fileLocks;
     private final File workdir;
 
-    public DefaultPageService(final Configuration config) throws URISyntaxException, IOException {
+    public DefaultPageService(final Configuration config) throws IOException {
         this(loadPagesFromConfig(config), lookupConfigValue(config, "workdir"));
     }
 
     public DefaultPageService(final Collection<String> pageNames, final String workdir) throws IOException {
         File dir = new File(workdir);
         if (!dir.exists() || !dir.canWrite()) {
-            throw new IOException("Can't access workdir: " + workdir);
+            throw new PageServiceException("Can't access workdir: " + workdir);
         }
         this.workdir = dir;
 
         Set<String> s = new HashSet<>();
-        s.addAll(pageNames);
+        Map<String, ReentrantReadWriteLock> l = new HashMap<>();
+        for (String pageName : pageNames) {
+            s.add(pageName);
+            l.put(pageName, new ReentrantReadWriteLock());
+        }
         this.allPageNames = Collections.unmodifiableSet(s);
+        this.fileLocks = Collections.unmodifiableMap(l);
     }
 
     @Override
@@ -36,10 +42,13 @@ public class DefaultPageService implements PageService {
             throw new NotFoundException();
         }
 
-        // TODO acquire lock for this page
-        Page page = new Page(pageName, readPageFile(pageName));
-        // TODO free lock
-        return page;
+        ReentrantReadWriteLock lock = fileLocks.get(pageName);
+        try {
+            lock.readLock().lock();
+            return new Page(pageName, pageFileExists(pageName));
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -58,11 +67,15 @@ public class DefaultPageService implements PageService {
         if (!isValidPageName(pageName)) {
             throw new NotFoundException();
         }
-        // TODO acquire lock for page
-        writePageFile(pageName, true);
-        Page page = new Page(pageName, true);
-        // TODO free lock
-        return page;
+
+        ReentrantReadWriteLock lock = fileLocks.get(pageName);
+        try {
+            lock.writeLock().lock();
+            createPageFile(pageName);
+            return new Page(pageName, true);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     @Override
@@ -70,24 +83,54 @@ public class DefaultPageService implements PageService {
         if (!isValidPageName(pageName)) {
             throw new NotFoundException();
         }
-        // TODO acquire lock for page
-        writePageFile(pageName, false);
-        Page page = new Page(pageName, false);
-        // TODO return lock for page
-        return page;
+
+        ReentrantReadWriteLock lock = fileLocks.get(pageName);
+        try {
+            lock.writeLock().lock();
+            removePageFile(pageName);
+            return new Page(pageName, false);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
-    private boolean readPageFile(final String pageName) {
-        // TODO implement this
-        // - Find respective file for this page in 'workdir'
-        // - Read the file and set correct 'active' state on page
-        // - Return 'active' state
-        return false;
+    private boolean pageFileExists(final String pageName) {
+        File pageFile = new File(workdir, pageName);
+        return pageFile.exists();
     }
 
-    private void writePageFile(final String pageName, final boolean active) {
-        // TODO implement this
-        throw new RuntimeException("Not implemented yet");
+    /**
+     * Creates a new page file relative to inside of workdir.
+     *
+     * @param pageName the name of the new file
+     */
+    private void createPageFile(final String pageName) {
+        File pageFile = new File(workdir, pageName);
+        try {
+            boolean status = pageFile.createNewFile();
+            if (!status) {
+                // file already exists
+            }
+        } catch (IOException e) {
+            throw new PageServiceException("Could not create file " + pageFile.toString(), e);
+        }
+    }
+
+    /**
+     * Deletes a file from workdir.
+     *
+     * @param pageName name of the file to delete
+     */
+    private void removePageFile(final String pageName) {
+        File pageFile = new File(workdir, pageName);
+        if (!pageFile.exists()) {
+            return;
+        }
+
+        boolean deleted = pageFile.delete();
+        if (!deleted) {
+            throw new PageServiceException("Could not delete file " + pageFile.toString());
+        }
     }
 
     private boolean isValidPageName(final String pageName) {

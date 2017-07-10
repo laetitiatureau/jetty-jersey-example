@@ -11,7 +11,6 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 @Singleton
 @Path("pages")
@@ -19,7 +18,7 @@ import java.net.URISyntaxException;
 public class PageResource {
     private PageService service;
 
-    public PageResource(@Context Configuration config) throws IOException, URISyntaxException {
+    public PageResource(@Context Configuration config) throws IOException {
         this(new DefaultPageService(config));
     }
 
