@@ -15,7 +15,7 @@ public class DefaultPageService implements PageService {
     private final Map<String, ReentrantReadWriteLock> fileLocks;
     private final File workdir;
 
-    public DefaultPageService(final Configuration config) throws IOException {
+    public DefaultPageService(final Configuration config) {
         this(loadPagesFromConfig(config), lookupConfigValue(config, "workdir"));
     }
 

@@ -10,7 +10,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 
 @Singleton
 @Path("pages")
@@ -18,7 +17,7 @@ import java.io.IOException;
 public class PageResource {
     private final PageService service;
 
-    public PageResource(@Context Configuration config) throws IOException {
+    public PageResource(@Context Configuration config) {
         this(new DefaultPageService(config));
     }
 

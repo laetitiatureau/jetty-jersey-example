@@ -23,6 +23,8 @@ class Main extends ResourceConfig {
     private static final String HTTP_PORT = "http.port";
     private static final String WORKDIR = "workdir";
     private static final String WEBROOT = "webroot";
+    public static final String WEBCACHE = "webcache";
+    public static final String PAGES = "pages";
 
     private Main() throws IOException {
         packages("app.resource");
@@ -40,7 +42,7 @@ class Main extends ResourceConfig {
         if (workDir != null) {
             File workDirFile = new File(workDir);
             if (!workDirFile.exists() || !workDirFile.canRead() || !workDirFile.isDirectory()) {
-                throw new RuntimeException("Config setting for 'workdir' invalid - can't access " + workDir);
+                throw new ConfigurationException("Config setting for 'workdir' invalid - can't access " + workDir);
             }
             cfg.put(WORKDIR, workDir);
         } else {
@@ -51,25 +53,25 @@ class Main extends ResourceConfig {
                     "using temporary directory. Files will be deleted on shutdown.");
         }
 
-        if (props.getProperty("pages") == null) {
-            throw new RuntimeException("Config setting for 'pages' (comma-separated list of valid pagenames) not defined");
+        if (props.getProperty(PAGES) == null) {
+            throw new ConfigurationException("Config setting for 'pages' (comma-separated list of valid pagenames) not defined");
         }
-        cfg.put("pages", props.getProperty("pages"));
+        cfg.put(PAGES, props.getProperty(PAGES));
 
         String webRoot = props.getProperty(WEBROOT);
         if (webRoot != null) {
             File webRootDir = new File(webRoot);
             if (!webRootDir.exists() || !webRootDir.canRead()) {
-                throw new RuntimeException("Config setting for 'webroot' is invalid - can access directory " + webRoot);
+                throw new ConfigurationException("Config setting for 'webroot' is invalid - can access directory " + webRoot);
             }
             cfg.put(WEBROOT, webRoot);
         }
 
-        String webCache = props.getProperty("webcache");
+        String webCache = props.getProperty(WEBCACHE);
         if (webCache != null) {
-            cfg.put("webcache", Boolean.parseBoolean(webCache));
+            cfg.put(WEBCACHE, Boolean.parseBoolean(webCache));
         } else {
-            cfg.put("webcache", true);
+            cfg.put(WEBCACHE, true);
         }
 
         for (Map.Entry<String, Object> entry : cfg.entrySet()) {
@@ -91,7 +93,9 @@ class Main extends ResourceConfig {
         // prod: load static files from classpath
         String webroot = (String) main.getProperty(WEBROOT);
         if (webroot != null) {
-            logger.info("Serving static files from dir: " + webroot);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("Serving static files from dir: " + webroot);
+            }
             server.getServerConfiguration().addHttpHandler(
                     new StaticHttpHandler(webroot), "/*");
 
@@ -102,7 +106,7 @@ class Main extends ResourceConfig {
                             "/static/"), "/*");
         }
 
-        if (!(Boolean) main.getProperty("webcache")) {
+        if (!(Boolean) main.getProperty(WEBCACHE)) {
             logger.info("Deactivating grizzly file cache ...");
             server.getListener("grizzly").getFileCache().setEnabled(false);
         }
