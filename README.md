@@ -1,5 +1,4 @@
-[![Build
-Status](https://travis-ci.org/aski/jetty-jersey-example.svg?branch=master)](https://travis-ci.org/aski/jetty-jersey-example)
+[![Build Status](https://travis-ci.org/aski/jetty-jersey-example.svg?branch=master)](https://travis-ci.org/aski/jetty-jersey-example)[![Coverage Status](https://coveralls.io/repos/github/aski/jetty-jersey-example/badge.svg?branch=master)](https://coveralls.io/github/aski/jetty-jersey-example?branch=master)
 
 
 Run `mvn clean package` and then start server with:
