@@ -2,8 +2,6 @@ package app.service;
 
 
 public class PageServiceException extends RuntimeException {
-    public PageServiceException() {
-    }
     public PageServiceException(String msg) {
         super(msg);
     }

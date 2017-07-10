@@ -109,6 +109,16 @@ public class DefaultPageServiceTest {
         assertTrue(page.isActive());
     }
 
+    @Test(expected = PageServiceException.class)
+    public void activatePageFileCantBeWritten() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        final String pageName = "foo";
+        PageService pageService = new DefaultPageService(
+                Collections.singleton(pageName), tempDir.toString());
+        tempDir.delete();
+        pageService.activatePage(pageName);
+    }
+
     @Test
     public void deactivatePageChangesState() throws IOException {
         final File tempDir = Files.createTempDirectory(null).toFile();

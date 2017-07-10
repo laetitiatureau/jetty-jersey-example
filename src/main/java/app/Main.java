@@ -1,6 +1,7 @@
 package app;
 
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
+import org.glassfish.grizzly.http.server.DefaultErrorPageGenerator;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -118,6 +119,8 @@ class Main extends ResourceConfig {
                 server.shutdown();
             }
         }));
+
+        server.getServerConfiguration().setDefaultErrorPageGenerator(new DefaultErrorPageGenerator());
 
         try {
             server.start();
