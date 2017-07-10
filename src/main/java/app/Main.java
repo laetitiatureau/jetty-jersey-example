@@ -1,8 +1,8 @@
 package app;
 
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
-import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -22,6 +22,7 @@ public class Main extends ResourceConfig {
     private static final String HTTP_URI = "http.uri";
     private static final String HTTP_PORT = "http.port";
     private static final String WORKDIR = "workdir";
+    private static final String WEBROOT = "webroot";
 
     private Main() throws IOException {
         packages("app.resource");
@@ -37,6 +38,10 @@ public class Main extends ResourceConfig {
 
         String workDir = props.getProperty(WORKDIR);
         if (workDir != null) {
+            File workDirFile = new File(workDir);
+            if (!workDirFile.exists() || !workDirFile.canRead() || !workDirFile.isDirectory()) {
+                throw new RuntimeException("Config setting for 'workdir' invalid - can't access " + workDir);
+            }
             cfg.put(WORKDIR, workDir);
         } else {
             File tmpWorkDir = Files.createTempDirectory(null).toFile();
@@ -50,6 +55,22 @@ public class Main extends ResourceConfig {
             throw new RuntimeException("Config setting for 'pages' (comma-separated list of valid pagenames) not defined");
         }
         cfg.put("pages", props.getProperty("pages"));
+
+        String webRoot = props.getProperty(WEBROOT);
+        if (webRoot != null) {
+            File webRootDir = new File(webRoot);
+            if (!webRootDir.exists() || !webRootDir.canRead()) {
+                throw new RuntimeException("Config setting for 'webroot' is invalid - can access directory " + webRoot);
+            }
+            cfg.put(WEBROOT, webRoot);
+        }
+
+        String webCache = props.getProperty("webcache");
+        if (webCache != null) {
+            cfg.put("webcache", Boolean.parseBoolean(webCache));
+        } else {
+            cfg.put("webcache", true);
+        }
 
         for (Map.Entry<String, Object> entry : cfg.entrySet()) {
             logger.info("config: " + entry.getKey() + "=" + entry.getValue());
@@ -65,16 +86,26 @@ public class Main extends ResourceConfig {
         int port = (int) main.getProperty(HTTP_PORT);
         URI baseUri = UriBuilder.fromUri(uri).path("app").port(port).build();
 
-        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, main);
+        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, main, false);
 
         // prod: load static files from classpath
-        HttpHandler staticHandler = new CLStaticHttpHandler(
-                Main.class.getClassLoader(), "/static/");
+        String webroot = (String) main.getProperty(WEBROOT);
+        if (webroot != null) {
+            logger.info("Serving static files from dir: " + webroot);
+            server.getServerConfiguration().addHttpHandler(
+                    new StaticHttpHandler(webroot), "/*");
 
-        // dev only: load static files from source folder - allows (almost) live editing of html, js, css files
-//        HttpHandler staticHandler = new StaticHttpHandler("src/main/resources/static");
+        } else {
+            logger.info("Serving static files from /static/* on classpath");
+            server.getServerConfiguration().addHttpHandler(
+                    new CLStaticHttpHandler(Main.class.getClassLoader(),
+                            "/static/"), "/*");
+        }
 
-        server.getServerConfiguration().addHttpHandler(staticHandler, "/*");
+        if (!(Boolean) main.getProperty("webcache")) {
+            logger.info("Deactivating grizzly file cache ...");
+            server.getListener("grizzly").getFileCache().setEnabled(false);
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override

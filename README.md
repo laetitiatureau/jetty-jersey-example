@@ -10,8 +10,11 @@ You can customize the following config settings:
                 files will be deleted on shutdown)
  - http.port -- which port to run on          (optional, default: 8080)
  - http.uri  -- which interfaces to listen on (optional, default: http://0.0.0.0)
-
-
+ - webroot   -- path to the static web resources, i.e. html
+                and js files (optional, default: read web resources from classpath/jar file)
+ - webcache  -- switch of grizzly's file cache by setting this to 'false' - slower
+                but useful during development
+ 
 You can also start the server with with maven:
 
 ```

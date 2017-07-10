@@ -115,8 +115,12 @@
                             <value>page1,page2,page3</value>
                         </property>
                         <property>
-                            <key>http.port</key>
-                            <value>8000</value>
+                            <key>webroot</key>
+                            <value>src/main/resources/static</value>
+                        </property>
+                        <property>
+                            <key>webcache</key>
+                            <value>false</value>
                         </property>
                     </systemProperties>
                 </configuration>
