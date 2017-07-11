@@ -9,8 +9,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
 
 public class DefaultPageService implements PageService {
+    private static final Logger logger = Logger.getGlobal();
+
     private final Set<String> allPageNames;
     private final Map<String, ReentrantReadWriteLock> fileLocks;
     private final File workdir;
@@ -26,7 +29,7 @@ public class DefaultPageService implements PageService {
         }
         this.workdir = dir;
 
-        Set<String> s = new HashSet<>();
+        Set<String> s = new LinkedHashSet<>();
         Map<String, ReentrantReadWriteLock> l = new HashMap<>();
         for (String pageName : pageNames) {
             s.add(pageName);
@@ -72,6 +75,7 @@ public class DefaultPageService implements PageService {
         try {
             lock.writeLock().lock();
             createPageFile(pageName);
+            logger.info("Activated page " + pageName);
             return new Page(pageName, true);
         } finally {
             lock.writeLock().unlock();
@@ -88,6 +92,7 @@ public class DefaultPageService implements PageService {
         try {
             lock.writeLock().lock();
             removePageFile(pageName);
+            logger.info("Deactivated page " + pageName);
             return new Page(pageName, false);
         } finally {
             lock.writeLock().unlock();
@@ -134,11 +139,11 @@ public class DefaultPageService implements PageService {
     }
 
     private boolean isInvalidPageName(final String pageName) {
-        return pageName == null || !allPageNames.contains(pageName.toLowerCase());
+        return pageName == null || !allPageNames.contains(pageName);
     }
 
     private static Collection<String> loadPagesFromConfig(final Configuration config) {
-        Set<String> s = new HashSet<>();
+        Set<String> s = new LinkedHashSet<>();
         String rawValue = (String) config.getProperty("pages");
         String[] splitValues = rawValue.trim().split(",");
         for (String value : splitValues) {

@@ -112,7 +112,7 @@
                     <systemProperties>
                         <property>
                             <key>pages</key>
-                            <value>page1,page2,page3</value>
+                            <value>Alpha, Beta, Gamma, Delta, Epsilon</value>
                         </property>
                         <property>
                             <key>webroot</key>
