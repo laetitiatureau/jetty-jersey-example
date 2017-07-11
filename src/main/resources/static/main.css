@@ -1,3 +1,31 @@
-.table > tbody > tr > td {
-    vertical-align: middle;
+.panel-table {
+    margin: 5px;
+    padding:0;
 }
+
+.panel-table {
+    border-style: none;
+    margin:0;
+}
+.panel-table > table > tbody > tr > td:first-of-type {
+    text-align:center;
+    width: 40px;
+}
+
+.panel-table > table > thead > tr > th:last-of-type,
+.panel-table > table > tbody > tr > td:last-of-type {
+    border-right: 0px;
+    text-align:center;
+    width: 100px;
+}
+
+.panel-table > table > tbody > tr:first-of-type > td {
+    border-bottom: 0px;
+}
+
+.panel-table > table > tbody > tr > td{
+    vertical-align: middle;
+    border-right: 0;
+    border-left: 0;
+}
+
