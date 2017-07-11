@@ -1,28 +1,48 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width = device-width, initial-scale = 1">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="/main.css">
-    <title>Pages</title>
-</head>
-<body>
-<div class="container">
-    <div class="page-header">
-        <h1>Pages</h1>
-    </div>
-    <div class="row">
-        <div class="col-md-12" id="pageList"></div>
-    </div>
-</div>
-<script src="/jquery/jquery-3.2.1.min.js"></script>
-<script src="/bootstrap/js/bootstrap.min.js"></script>
-<script src="/main.js"></script>
-<script>
-     $(document).ready(lookupPages);
-</script>
-</body>
+<html>
+    <head>
+        <title>Manage Pages</title>
+        <link rel='stylesheet' href='bootstrap/css/bootstrap.min.css'>
+        <link rel='stylesheet' href='bootstrap/css/bootstrap-theme.min.css'>
+        <link rel='stylesheet' href='main.css'>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='page-header'>
+                <h1>Manage Pages</h1>
+            </div>
+            <div id='app'>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for='(page, idx) in pages'>
+                            <td>
+                                <button v-if="page.active" class='btn btn-default glyphicon glyphicon-off' v-on:click='deactivatePage(page.name)'/>
+                                    <button v-else="page.active" class='btn btn-default glyphicon glyphicon-off' v-on:click='activatePage(page.name)'/>
+                            </td>
+                            <td>
+                                {{ page.name }}
+                            </td>
+                            <td>
+                                <span v-if="page.active" class='label label-success'>online</span>
+                                <span v-else="page.active" class='label label-danger'>offline</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <script src='jquery/jquery-3.2.1.min.js'></script>
+            <script src='bootstrap/js/bootstrap.min.js'></script>
+            <script src='vuejs/vue.js'></script>
+            <script src='vuejs/vue-resource.js'></script>
+            <script src='main.js'></script>
+    </body>
 </html>
+

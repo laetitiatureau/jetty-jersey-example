@@ -1,28 +1,39 @@
-function lookupPages() {
-  $.ajax({
-    type: 'GET',
-    url: '/app/pages',
-    dataType: 'json',
-    success: renderPages
-  });
-}
+Vue.use(VueResource)
 
-function renderPages(json) {
-  $("#pageList").empty()
-  $.each(json.pages, function(idx, page) {
-    $("#pageList").append(`
-      <div class="page">
-        <div class="row">
-          <div class="col-sm-6">${page.name}</div>
-          <div class="col-sm-6">
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-default">On</button>
-              <button type="button" class="btn btn-default">Off</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `);
-  });
-}
-
+var app = new Vue({
+    el: '#app',
+    data: {
+        pages: []
+    },
+    methods: {
+        activatePage(name) {
+            this.$http.put('http://localhost:8080/app/pages/' + name)
+                .then(function(response) {
+                    this.updatePage(name, response.body.active)
+                })
+        },
+        deactivatePage(name) {
+            this.$http.delete('http://localhost:8080/app/pages/' + name)
+                .then(function(response) {
+                    this.updatePage(name, response.body.active)
+                })
+        },
+        updatePage(name, active) {
+            for (var i = 0; i < this.pages.length; i++) {
+                var page = this.pages[i];
+                if (page.name == name) {
+                    page.active = active
+                }
+            }
+        },
+        fetchPages() {
+            this.$http.get('http://localhost:8080/app/pages')
+                .then(function(response) {
+                    this.pages = response.body.pages
+                })
+         }
+    },
+    created: function() {
+        this.fetchPages()
+    }
+})
