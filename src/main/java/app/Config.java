@@ -18,10 +18,6 @@ public class Config {
     public static final String WORKDIR = "workdir";
     public static final String WEBROOT = "webroot";
 
-    private Config() {
-        // static class
-    }
-
     public static Map<String, Object> loadConfig(final Properties props) throws IOException {
         Map<String, Object> cfg = new LinkedHashMap<>();
         cfg.put(HTTP_URI, props.getProperty(HTTP_URI, "http://0.0.0.0"));
