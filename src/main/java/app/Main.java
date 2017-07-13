@@ -29,7 +29,7 @@ class Main extends ResourceConfig {
                 .build();
     }
 
-    private static HttpServer instantiateServer(final URI baseUri, final ResourceConfig application) {
+    protected static HttpServer instantiateServer(final URI baseUri, final ResourceConfig application) {
         final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, application, false);
 
         String webroot = (String) application.getProperty(Config.WEBROOT);
