@@ -138,6 +138,10 @@ public class DefaultPageService implements PageService {
         }
     }
 
+    public File getWorkdir() {
+        return workdir;
+    }
+
     private boolean isInvalidPageName(final String pageName) {
         return pageName == null || !allPageNames.contains(pageName);
     }

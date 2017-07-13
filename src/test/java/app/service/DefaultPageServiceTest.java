@@ -5,6 +5,7 @@ import app.data.PageList;
 import org.junit.Test;
 
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultPageServiceTest {
 
@@ -163,5 +166,26 @@ public class DefaultPageServiceTest {
         final File readOnlyDir = new File(tempDir, "foo");
         readOnlyDir.setReadOnly();
         new DefaultPageService(Collections.singleton("foo"), readOnlyDir.toString());
+    }
+
+    @Test
+    public void instantiateWithConfiguration() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+
+        Configuration cfg = mock(Configuration.class);
+        when(cfg.getProperty("pages")).thenReturn("foo,bar");
+        when(cfg.getProperty("workdir")).thenReturn(tempDir.toString());
+        DefaultPageService service = new DefaultPageService(cfg);
+
+        Set<String> pageNames = new HashSet<>();
+        for (Page page : service.getPageList().getPages()) {
+            pageNames.add(page.getName());
+        }
+        assertEquals(2, pageNames.size());
+        assertTrue(pageNames.contains("foo"));
+        assertTrue(pageNames.contains("bar"));
+        assertEquals(tempDir, service.getWorkdir());
+
     }
 }

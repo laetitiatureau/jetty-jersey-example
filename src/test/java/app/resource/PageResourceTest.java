@@ -12,11 +12,16 @@ import org.junit.Test;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -121,5 +126,26 @@ public class PageResourceTest extends JerseyTest {
     public void deactivateInvalidPage() {
         Response response = target("/pages/invalid").request(MediaType.APPLICATION_JSON).delete();
         assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void instantiateWithConfiguration() throws IOException {
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+
+        Configuration cfg = mock(Configuration.class);
+        when(cfg.getProperty("pages")).thenReturn("foo,bar");
+        when(cfg.getProperty("workdir")).thenReturn(tempDir.toString());
+
+        PageResource resource = new PageResource(cfg);
+
+        Set<String> pageNames = new HashSet<>();
+        for (Page page : resource.getPageList().getPages()) {
+            pageNames.add(page.getName());
+        }
+
+        assertEquals(2, pageNames.size());
+        assertTrue(pageNames.contains("foo"));
+        assertTrue(pageNames.contains("bar"));
     }
 }
