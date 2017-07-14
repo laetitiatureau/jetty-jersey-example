@@ -75,13 +75,15 @@ public class DefaultPageServiceTest {
 
     @Test
     public void getPageForPageReturnsCorrectState() throws IOException {
-        final String tempDir = Files.createTempDirectory(null).toString();
+        final File tempDir = Files.createTempDirectory(null).toFile();
+        tempDir.deleteOnExit();
+
         final String pageName = "foo";
         final File pageFile = new File(tempDir, pageName);
         pageFile.createNewFile();
 
         PageService pageService = new DefaultPageService(
-                Collections.singleton(pageName), tempDir);
+                Collections.singleton(pageName), tempDir.toString());
 
         Page page = pageService.getPage(pageName);
 

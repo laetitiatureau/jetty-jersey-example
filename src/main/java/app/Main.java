@@ -10,18 +10,14 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class Main extends ResourceConfig {
     private static final Logger logger = Logger.getGlobal();
 
-    private Main() throws IOException {
-        packages("app.resource");
-        addProperties(Config.loadConfig(System.getProperties()));
-    }
-
-    private static URI buildServerURI(final Map<String, Object> configuration) {
+    protected static URI buildServerURI(final Map<String, Object> configuration) {
         return UriBuilder
                 .fromUri((String) configuration.get(Config.HTTP_URI))
                 .port((Integer) configuration.get(Config.HTTP_PORT))
@@ -61,10 +57,9 @@ class Main extends ResourceConfig {
         return server;
     }
 
-
-    public static void main(String[] args) throws Exception {
+    protected static void start(Properties configuration) throws IOException {
         final ResourceConfig rc = new ResourceConfig();
-        final Map<String, Object> cfg = Config.loadConfig(System.getProperties());
+        final Map<String, Object> cfg = Config.loadConfig(configuration);
         rc.addProperties(cfg);
         rc.packages("app.resource");
 
@@ -77,6 +72,11 @@ class Main extends ResourceConfig {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to start grizzly server", e);
         }
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        start(System.getProperties());
     }
 }
 
