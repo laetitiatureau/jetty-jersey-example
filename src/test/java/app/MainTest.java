@@ -1,5 +1,6 @@
 package app;
 
+import app.filter.CorsFilter;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
@@ -13,7 +14,10 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class MainTest {
     @Test
@@ -44,5 +48,19 @@ public class MainTest {
         assertEquals(12345, uri.getPort());
         assertEquals("test", uri.getHost());
         assertEquals("http", uri.getScheme());
+    }
+
+    @Test
+    public void testCreateResourceConfig() throws IOException {
+        Map<String, Object> cfg = new HashMap<>();
+        cfg.put(Config.CORS, "true");
+        cfg.put("foo", 1);
+
+        ResourceConfig rc = Main.createResourceConfig(cfg);
+
+        assertEquals("true", rc.getProperty(Config.CORS));
+        assertEquals(1, rc.getProperty("foo"));
+        assertThat(rc.getInstances(), contains(instanceOf(CorsFilter.class)));
+
     }
 }

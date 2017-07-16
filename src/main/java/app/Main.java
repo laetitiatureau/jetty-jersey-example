@@ -58,9 +58,9 @@ class Main extends ResourceConfig {
         return server;
     }
 
-    protected static void start(Properties configuration) throws IOException {
+    protected static ResourceConfig createResourceConfig(final Map<String, Object> cfg) throws IOException {
         final ResourceConfig rc = new ResourceConfig();
-        final Map<String, Object> cfg = Config.loadConfig(configuration);
+
         rc.addProperties(cfg);
         rc.packages("app.resource");
 
@@ -68,7 +68,15 @@ class Main extends ResourceConfig {
             rc.register(new CorsFilter());
         }
 
-        final HttpServer server = instantiateServer(buildServerURI(cfg), rc);
+        return rc;
+    }
+
+    public static void main(String[] args) throws Exception {
+        Map<String, Object> cfg = Config.loadConfig(System.getProperties());
+        ResourceConfig rc = createResourceConfig(cfg);
+        URI baseUri = buildServerURI(rc.getProperties());
+
+        final HttpServer server = instantiateServer(baseUri, rc);
 
         try {
             server.start();
@@ -77,11 +85,6 @@ class Main extends ResourceConfig {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to start grizzly server", e);
         }
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        start(System.getProperties());
     }
 }
 
