@@ -1,13 +1,15 @@
 package app.resource;
 
-import app.data.PageList;
 import app.data.Page;
+import app.data.PageList;
 import app.service.PageService;
 import com.google.gson.Gson;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
@@ -17,15 +19,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PageResourceTest extends JerseyTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private Map<String, Page> pageIndex;
     private Set<Page> pages;
     private Gson gson;
@@ -130,7 +135,7 @@ public class PageResourceTest extends JerseyTest {
 
     @Test
     public void instantiateWithConfiguration() throws IOException {
-        final File tempDir = Files.createTempDirectory(null).toFile();
+        final File tempDir = temporaryFolder.newFolder();
         tempDir.deleteOnExit();
 
         Configuration cfg = mock(Configuration.class);
@@ -138,14 +143,9 @@ public class PageResourceTest extends JerseyTest {
         when(cfg.getProperty("workdir")).thenReturn(tempDir.toString());
 
         PageResource resource = new PageResource(cfg);
+        PageList pageList = resource.getPageList();
+        List<Page> pages = pageList.getPages();
+        assertThat(pages, containsInAnyOrder(new Page("foo", false), new Page("bar", false)));
 
-        Set<String> pageNames = new HashSet<>();
-        for (Page page : resource.getPageList().getPages()) {
-            pageNames.add(page.getName());
-        }
-
-        assertEquals(2, pageNames.size());
-        assertTrue(pageNames.contains("foo"));
-        assertTrue(pageNames.contains("bar"));
     }
 }

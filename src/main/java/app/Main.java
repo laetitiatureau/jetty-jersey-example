@@ -1,5 +1,6 @@
 package app;
 
+import app.filter.CorsFilter;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
@@ -62,6 +63,10 @@ class Main extends ResourceConfig {
         final Map<String, Object> cfg = Config.loadConfig(configuration);
         rc.addProperties(cfg);
         rc.packages("app.resource");
+
+        if (Boolean.parseBoolean((String) cfg.get(Config.CORS))) {
+            rc.register(new CorsFilter());
+        }
 
         final HttpServer server = instantiateServer(buildServerURI(cfg), rc);
 

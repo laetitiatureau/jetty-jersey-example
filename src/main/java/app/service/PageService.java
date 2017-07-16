@@ -1,7 +1,7 @@
 package app.service;
 
-import app.data.PageList;
 import app.data.Page;
+import app.data.PageList;
 
 public interface PageService {
     Page getPage(String pageName);

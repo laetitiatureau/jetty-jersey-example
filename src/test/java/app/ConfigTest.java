@@ -1,6 +1,5 @@
 package app;
 
-import app.service.PageServiceException;
 import org.junit.Test;
 
 import java.io.File;

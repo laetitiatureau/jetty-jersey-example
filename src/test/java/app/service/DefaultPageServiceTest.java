@@ -9,11 +9,9 @@ import javax.ws.rs.core.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -179,14 +177,11 @@ public class DefaultPageServiceTest {
         when(cfg.getProperty("pages")).thenReturn("foo,bar");
         when(cfg.getProperty("workdir")).thenReturn(tempDir.toString());
         DefaultPageService service = new DefaultPageService(cfg);
+        List<Page> pages = service.getPageList().getPages();
 
-        Set<String> pageNames = new HashSet<>();
-        for (Page page : service.getPageList().getPages()) {
-            pageNames.add(page.getName());
-        }
-        assertEquals(2, pageNames.size());
-        assertTrue(pageNames.contains("foo"));
-        assertTrue(pageNames.contains("bar"));
+        assertThat(pages, hasSize(2));
+        assertEquals(pages,
+                Arrays.asList(new Page("foo", false), new Page("bar", false)));
         assertEquals(tempDir, service.getWorkdir());
 
     }
