@@ -71,10 +71,10 @@ class Main extends ResourceConfig {
         return rc;
     }
 
-    public static void main(String[] args) throws Exception {
-        Map<String, Object> cfg = Config.loadConfig(System.getProperties());
+    protected static void startServer(Properties config) throws IOException {
+        Map<String, Object> cfg = Config.loadConfig(config);
+        URI baseUri = buildServerURI(cfg);
         ResourceConfig rc = createResourceConfig(cfg);
-        URI baseUri = buildServerURI(rc.getProperties());
 
         final HttpServer server = instantiateServer(baseUri, rc);
 
@@ -85,6 +85,10 @@ class Main extends ResourceConfig {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to start grizzly server", e);
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        startServer(System.getProperties());
     }
 }
 
