@@ -4,13 +4,13 @@
             <Header title='Maintenance Pages'/>
             <div class="row">
                 <div class="col-sm-4">
-                    <PageList filter="SIT"/>
+                    <PageList filter="Env1"/>
                 </div>
                 <div class="col-sm-4">
-                    <PageList filter="PREPROD"/>
+                    <PageList filter="Env2"/>
                 </div>
                 <div class="col-sm-4">
-                    <PageList filter="PROD"/>
+                    <PageList filter="Env3"/>
                 </div>
             </div>
         </div>

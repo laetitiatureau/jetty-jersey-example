@@ -122,15 +122,7 @@
                     <systemProperties>
                         <property>
                             <key>pages</key>
-                            <value>Env1-Page1,Env1-Page2,Env1-Page3,Env1-Page4,Env2-Page1,Env2-Page2,Env2-Page3,Env2-Page4,Env3-Page1,Env2-Page2,Env3-Page3,Env3-Page4</value>
-                        </property>
-                        <property>
-                            <key>webroot</key>
-                            <value>../frontend/target/</value>
-                        </property>
-                        <property>
-                            <key>webcache</key>
-                            <value>false</value>
+                            <value>Env1-Page1,Env1-Page2,Env1-Page3,Env1-Page4,Env2-Page1,Env2-Page2,Env2-Page3,Env2-Page4,Env3-Page1,Env3-Page2,Env3-Page3,Env3-Page4</value>
                         </property>
                         <property>
                             <key>http.cors</key>

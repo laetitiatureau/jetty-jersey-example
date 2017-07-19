@@ -22,7 +22,7 @@ class Main extends ResourceConfig {
         return UriBuilder
                 .fromUri((String) configuration.get(Config.HTTP_URI))
                 .port((Integer) configuration.get(Config.HTTP_PORT))
-                .path("app")
+                .path("api")
                 .build();
     }
 

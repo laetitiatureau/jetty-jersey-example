@@ -28,12 +28,12 @@ export default {
     methods: {
         setPageStatus(name, state) {
             if (state == true) {
-                this.$http.delete('/app/pages/' + name)
+                this.$http.delete('http://localhost:8080/api/pages/' + name)
                     .then(function(response) {
                         this.updatePage(name, response.body.active)
                     })
             } else {
-                this.$http.put('/app/pages/' + name)
+                this.$http.put('http://localhost:8080/api/pages/' + name)
                     .then(function(response) {
                         this.updatePage(name, response.body.active)
                     })
@@ -48,7 +48,7 @@ export default {
             }
         },
         fetchPages() {
-            this.$http.get('/app/pages')
+            this.$http.get('http://localhost:8080/api/pages')
             .then(function(response) {
                 this.pages = this.filterBy(response.body.pages, this.filter)
             })
