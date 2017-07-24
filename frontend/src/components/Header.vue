@@ -1,12 +1,9 @@
 <template>
     <nav class="navbar navbar-default" v-if="loggedIn">
   <div class="container-fluid">
-    <ul class="nav navbar-nav">
+    <ul class="nav navbar-nav navbar-right">
       <li>
-        <router-link to="/">Home</router-link>
-      </li>
-      <li>
-        <router-link v-if="loggedIn" to="/logout">Log out</router-link>
+        <router-link to="/logout">Log out</router-link>
       </li>
     </ul>
   </div>

@@ -5,6 +5,8 @@
         You need to login first.
       </h1>
       <div class="account-wall">
+        <img class="profile-img" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=120"
+alt="">
         <form @submit.prevent="login" class="form-signin">
           <input class="form-control" v-model="email" placeholder="email" type="text" required autofocus>
           <input class="form-control" v-model="pass" placeholder="password" type="password" required>
@@ -89,6 +91,16 @@ export default {
   font-size: 18px;
   font-weight: 400;
   display: block;
+}
+
+.profile-img {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 10px;
+    display: block;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
 }
 
 </style>

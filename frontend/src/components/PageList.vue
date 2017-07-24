@@ -1,18 +1,16 @@
 <template>
   <div>
   <h3>{{ filter }}</h3>
-  <div>
-    <div v-for="page in pages">
-      <div class="well">
-      <div>
-        <span class="page-title">{{ page.name }}</span>
-        <span class="page-toggle">
-        <bootstrap-toggle v-model="page.active" :options="{ on: 'On', off: 'Off' }"/>
-        </span>
-      </div>
-    </div>
-    </div>
-  </div>
+  <table class="table table-striped">
+    <tbody>
+      <tr v-for="page in pages">
+        <td><span>{{ page.name }}</span></td>
+        <td>
+          <bootstrap-toggle v-model="page.active" :options="{ on: 'On', off: 'Off' }"/>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 </template>
 
@@ -69,15 +67,16 @@ export default {
 </script>
 
 <style>
-.panel {
-    border: 0;
+table > tbody > tr > td:last-child {
+  width: 50px;
 }
-.page-title {
-  vertical-align: bottom;
 
+table > tbody > tr > td {
+  vertical-align: text-top;
 }
-.page-toggle {
-  float:right;
+
+table > tbody > tr  {
   vertical-align: middle;
 }
+
 </style>

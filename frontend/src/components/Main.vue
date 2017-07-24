@@ -11,7 +11,7 @@
           <PageList filter="Env3"/>
       </div>
       <div class="col-xs-2 col-xs-offset-5">
-      <button class="btn btn-block btn-primary">Save</button>
+      <button class="btn btn-block btn-primary pages-save">Save</button>
     </div>
   </div>
 </template>
@@ -32,4 +32,7 @@ export default {
 </script>
 
 <style>
+.pages-save {
+  margin-bottom: 50px;
+}
 </style>
