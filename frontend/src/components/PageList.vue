@@ -1,17 +1,19 @@
 <template>
-    <div class='panel panel-default'>
-        <div class='panel-header'>
-            <h3>{{ filter }}</h3>
-        </div>
-        <table class='table table-striped'>
-            <tbody>
-                <tr v-for="page in pages">
-                    <td>{{ page.name }}</td>
-                    <td><input type='checkbox' v-model="page.active" v-on:click="setPageStatus(page.name, page.active)" /></td>
-                </tr>
-            </tbody>
-        </table>
+  <div>
+  <h3>{{ filter }}</h3>
+  <div>
+    <div v-for="page in pages">
+      <div class="well">
+      <div>
+        <span class="page-title">{{ page.name }}</span>
+        <span class="page-toggle">
+        <bootstrap-toggle v-model="page.active" :options="{ on: 'On', off: 'Off' }"/>
+        </span>
+      </div>
     </div>
+    </div>
+  </div>
+</div>
 </template>
 
 <script>
@@ -70,11 +72,12 @@ export default {
 .panel {
     border: 0;
 }
-.table > tbody > tr > td {
-    vertical-align: middle;
-    border: 0;
+.page-title {
+  vertical-align: bottom;
+
 }
-.table > tbody > tr > td:last-of-type {
-    width: 100px;
+.page-toggle {
+  float:right;
+  vertical-align: middle;
 }
 </style>
