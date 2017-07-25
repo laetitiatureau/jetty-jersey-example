@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     login() {
-      auth.login(this.email, this.pass, loggedIn => {
+      auth.login(this, this.email, this.pass, loggedIn => {
         if (!loggedIn) {
           this.error = true
         } else {

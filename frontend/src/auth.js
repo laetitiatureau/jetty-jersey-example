@@ -1,14 +1,14 @@
 /* globals localStorage */
 
 export default {
-  login (email, pass, cb) {
+  login (context, email, pass, cb) {
     cb = arguments[arguments.length - 1]
     if (localStorage.token) {
       if (cb) cb(true)
       this.onChange(true)
       return
     }
-    pretendRequest(email, pass, (res) => {
+    sendAuthRequest(context, email, pass, (res) => {
       if (res.authenticated) {
         localStorage.token = res.token
         if (cb) cb(true)
@@ -37,8 +37,20 @@ export default {
   onChange () {}
 }
 
-function pretendRequest (email, pass, cb) {
+function sendAuthRequest (context, email, pass, cb) {
   setTimeout(() => {
+    console.log("boom")
+    var data = { 'username': email, 'password': pass }
+
+    context.$http.post('http://localhost:8080/api/auth', data, { emulateJSON: true }).then(
+      function(response) {
+        console.log("success: " + response);
+      },
+      function(response) {
+        console.log("fail:" + response.status)
+      });
+    console.log("done")
+
     if (email === 'joe@example.com' && pass === 'password1') {
       cb({
         authenticated: true,
