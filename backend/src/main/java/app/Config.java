@@ -18,6 +18,7 @@ public class Config {
     public static final String WORKDIR = "workdir";
     public static final String WEBROOT = "webroot";
     public static final String CORS = "http.cors";
+    public static final String SECURE = "auth";
 
     public static Map<String, Object> loadConfig(final Properties props) throws IOException {
         Map<String, Object> cfg = new LinkedHashMap<>();
@@ -61,6 +62,8 @@ public class Config {
         }
 
         cfg.put(CORS, props.getProperty(CORS, "false"));
+
+        cfg.put(SECURE, props.getProperty(SECURE, "false"));
 
         for (Map.Entry<String, Object> entry : cfg.entrySet()) {
             logger.info("config: " + entry.getKey() + "=" + entry.getValue());

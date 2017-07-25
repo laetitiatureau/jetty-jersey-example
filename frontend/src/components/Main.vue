@@ -1,6 +1,10 @@
 <template>
   <div class="row">
       <h2 class="text-center">Maintenance Pages</h2>
+      <div v-if="info_text" class="col-sm-4 col-sm-offset-4 alert alert-success alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  {{ info_text }}
+</div>
       <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
           <PageList title="Env1" :pages="env1_pages"/>
       </div>
@@ -23,6 +27,7 @@ export default {
   name: 'main',
   data () {
     return {
+      info_text: "",
       all_pages: [],
       env1_pages: [],
       env2_pages: [],
@@ -46,6 +51,7 @@ export default {
         for (var i = 0; i < this.all_pages.length; i++) {
             this.savePage(this.all_pages[i])
         }
+        this.info_text = "Your changes were saved."
     },
     savePage(page) {
         if (page.active == true) {

@@ -1,11 +1,13 @@
 package app;
 
+import app.filter.AuthFilter;
 import app.filter.CorsFilter;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -66,6 +68,11 @@ class Main extends ResourceConfig {
 
         if (Boolean.parseBoolean((String) cfg.get(Config.CORS))) {
             rc.register(new CorsFilter());
+        }
+
+        if (Boolean.parseBoolean((String) cfg.get(Config.SECURE))) {
+            rc.register(RolesAllowedDynamicFeature.class);
+            rc.register(new AuthFilter());
         }
 
         return rc;

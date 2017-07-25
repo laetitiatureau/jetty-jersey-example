@@ -5,6 +5,8 @@ import app.data.PageList;
 import app.service.DefaultPageService;
 import app.service.PageService;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Configuration;
@@ -14,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 @Singleton
 @Path("pages")
 @Produces(MediaType.APPLICATION_JSON)
+@RolesAllowed("user")
 public class PageResource {
     private final PageService service;
 
