@@ -10,6 +10,13 @@ import Login from './components/Login.vue'
 Vue.use(VueResource)
 Vue.use(VueRouter)
 
+Vue.http.interceptors.push((request, next) => {
+  if (auth.loggedIn()) {
+    request.headers.set('Authorization', auth.getToken())
+  }
+  next()
+})
+
 function requireAuth (to, from, next) {
   if (!auth.loggedIn()) {
     next({

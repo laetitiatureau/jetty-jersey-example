@@ -39,17 +39,15 @@ export default {
 
 function sendAuthRequest (context, email, pass, cb) {
   setTimeout(() => {
-    console.log("boom")
     var data = { 'username': email, 'password': pass }
 
-    context.$http.post('http://localhost:8080/api/auth', data, { emulateJSON: true }).then(
-      function(response) {
-        console.log("success: " + response);
-      },
-      function(response) {
-        console.log("fail:" + response.status)
-      });
-    console.log("done")
+    context.$http.post('http://localhost:8080/api/auth', data, { emulateJSON: true }).then(response => {
+      // success callback
+      var header = response.headers.get("Authorization")
+    }, response => {
+      // error callback
+      console.log("fail:" + response.status);
+    });
 
     if (email === 'joe@example.com' && pass === 'password1') {
       cb({

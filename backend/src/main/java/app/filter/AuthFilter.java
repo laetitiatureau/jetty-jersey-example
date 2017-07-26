@@ -1,6 +1,7 @@
 package app.filter;
 
 import app.data.User;
+import com.sun.research.ws.wadl.HTTPMethods;
 import org.glassfish.jersey.server.ContainerRequest;
 
 import javax.annotation.Priority;
@@ -38,10 +39,15 @@ public class AuthFilter implements ContainerRequestFilter {
 
         if (HttpMethod.POST.equals(method) && "auth".equals(path)) {
             User user = new User();
-            user.setRoles(Collections.<String>emptySet());
+            user.setRoles(Collections.emptySet());
             user.setName("anonymous");
             user.setVersion(0);
             return new DefaultSecurityContext(user);
+        } else if (HttpMethod.OPTIONS.equals(method)) {
+            String accept = "GET,PUT,DELETE,OPTIONS";
+            // needed to get cors-requests with authorization header to work - the browser will send
+            // a preflight 'OPTIONS' request and 'say it's ok to send the real request'
+            throw new WebApplicationException(Response.ok().header(HttpHeaders.ACCEPT, accept).build());
         } else if (authHeader != null) {
             // add jwt magic
             User user = new User();
