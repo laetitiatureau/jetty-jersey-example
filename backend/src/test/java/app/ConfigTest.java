@@ -1,5 +1,6 @@
 package app;
 
+import app.exception.ConfigurationException;
 import org.junit.Test;
 
 import java.io.File;

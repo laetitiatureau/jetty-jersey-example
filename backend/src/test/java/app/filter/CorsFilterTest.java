@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 public class CorsFilterTest {
     @Test
     public void filterAddsAllExpectedHeaders() throws IOException {
-        CorsFilter filter = new CorsFilter();
+        CORSFilter filter = new CORSFilter();
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
         ContainerResponseContext responseContext = mock(ContainerResponseContext.class);

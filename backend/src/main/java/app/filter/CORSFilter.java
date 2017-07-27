@@ -7,9 +7,8 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
-import java.util.Collections;
 
-public class CorsFilter implements ContainerResponseFilter {
+public class CORSFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
         MultivaluedMap<String, Object> headers = responseContext.getHeaders();
@@ -19,6 +18,6 @@ public class CorsFilter implements ContainerResponseFilter {
                 String.join(",", HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE));
         headers.add("Access-Control-Allow-Headers",
                 String.join(",", HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION));
-        headers.add("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
+//        headers.add("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
     }
 }

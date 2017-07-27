@@ -6,8 +6,9 @@ import java.util.List;
 
 public class PageList {
     private List<Page> pages;
-    public PageList() {
 
+    public PageList() {
+        // empty constructor for jackson
     }
 
     public PageList(final Collection<Page> pages) {

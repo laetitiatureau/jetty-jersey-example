@@ -2,14 +2,11 @@ package app.resource;
 
 import app.data.Token;
 import app.data.User;
-import app.service.DummyUserService;
-import app.service.UserService;
-import app.service.TokenService;
-import app.service.DummyTokenService;
+import app.exception.UnauthorizedException;
+import app.service.*;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Logger;
@@ -25,7 +22,7 @@ public class AuthResource {
 
     public AuthResource() {
         this.userService = new DummyUserService();
-        this.authTokenFactory = new DummyTokenService();
+        this.authTokenFactory = new DefaultTokenService();
     }
 
     public AuthResource(TokenService authTokenFactory, UserService userService) {
@@ -38,14 +35,13 @@ public class AuthResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response authenticateUser(@FormParam("username") String userName,
                                      @FormParam("password") String password) {
+        try {
+            User user = userService.authenticate(userName, password);
+            Token token = authTokenFactory.forUser(user);
 
-        User user = userService.authenticate(userName, password);
-
-        Token token = authTokenFactory.createToken(user.getName(),
-                user.getRoles(), user.getVersion());
-
-        String header = "Bearer " + token.getAuthToken();
-
-        return Response.ok().header(HttpHeaders.AUTHORIZATION, header).build();
+            return Response.ok(token).build();
+        } catch (UnauthorizedException exception) {
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        }
     }
 }

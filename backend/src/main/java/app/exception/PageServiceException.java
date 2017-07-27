@@ -1,4 +1,4 @@
-package app.service;
+package app.exception;
 
 
 public class PageServiceException extends RuntimeException {

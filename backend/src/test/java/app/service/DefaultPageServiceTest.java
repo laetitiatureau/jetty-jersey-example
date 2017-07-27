@@ -2,6 +2,7 @@ package app.service;
 
 import app.data.Page;
 import app.data.PageList;
+import app.exception.PageServiceException;
 import org.junit.Test;
 
 import javax.ws.rs.NotFoundException;

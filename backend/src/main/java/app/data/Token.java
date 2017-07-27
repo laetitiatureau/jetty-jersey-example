@@ -1,26 +1,39 @@
 package app.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 public class Token {
-    private String authToken;
+    private String token;
+
+    @JsonIgnore
+    private String username;
 
     public Token() {
-        // empty constructor for moxy
+        // empty constructor for jackson
     }
 
-    public Token(String authToken) {
-        this.authToken = authToken;
+    public Token(String token, String username) {
+        this.token = token;
+        this.username = username;
     }
 
-    public String getAuthToken() {
-        return authToken;
+    public String getToken() {
+        return token;
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
+    public void setToken(String token) {
+        this.token = token;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     @Override
     public boolean equals(Object other) {
@@ -30,11 +43,11 @@ public class Token {
             return false;
         } else {
             Token otherToken = (Token) other;
-            return Objects.equals(authToken, otherToken.authToken);
+            return Objects.equals(token, otherToken.token) && Objects.equals(username, otherToken.username);
         }
     }
 
     public int hashCode() {
-        return Objects.hash(authToken);
+        return Objects.hash(token, username);
     }
 }

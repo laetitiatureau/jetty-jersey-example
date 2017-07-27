@@ -1,6 +1,6 @@
 package app;
 
-import app.filter.CorsFilter;
+import app.filter.CORSFilter;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class MainTest {
 
         assertEquals("true", rc.getProperty(Config.CORS));
         assertEquals(1, rc.getProperty("foo"));
-        assertThat(rc.getInstances(), contains(instanceOf(CorsFilter.class)));
+        assertThat(rc.getInstances(), contains(instanceOf(CORSFilter.class)));
 
     }
 }

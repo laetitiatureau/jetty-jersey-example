@@ -2,6 +2,7 @@ package app.resource;
 
 import app.data.Token;
 import app.data.User;
+import app.exception.UnauthorizedException;
 import app.service.TokenService;
 import app.service.UserService;
 import com.google.gson.Gson;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.*;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,17 +37,17 @@ public class AuthResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testSuccessfulAuth() {
+    public void testSuccessfulAuth() throws UnauthorizedException {
         String tokenString = "123";
 
         String username = "joe@example.com";
         String password = "password1";
 
-        User user = new User(username, Collections.singleton("user"), 0);
+        User user = new User(username, Collections.singleton("user"));
         when(userService.authenticate(username, password)).thenReturn(user);
 
-        Token token = new Token(tokenString);
-        when(tokenService.createToken(user.getName(), user.getRoles(), user.getVersion())).thenReturn(token);
+        Token token = new Token(tokenString, user.getName());
+        when(tokenService.forUser(user)).thenReturn(token);
 
         Form form = new Form();
         form.param("username", username);
@@ -55,13 +57,15 @@ public class AuthResourceTest extends JerseyTest {
 
         assertEquals(200, response.getStatus());
 
-        String authHeader = response.getHeaderString(HttpHeaders.AUTHORIZATION);
+        Token receivedToken = gson.fromJson(response.readEntity(String.class), Token.class);
 
-        assertEquals("Bearer " + tokenString, authHeader);
+        assertNull(receivedToken.getUsername());
+
+        assertEquals(token.getToken(), receivedToken.getToken());
     }
 
     @Test
-    public void testAuthWithUserServiceException() {
+    public void testAuthWithUserServiceException() throws UnauthorizedException {
         when(userService.authenticate(anyString(), anyString())).thenThrow(
                 new NotAuthorizedException("User not found"));
 

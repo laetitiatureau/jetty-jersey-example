@@ -1,7 +1,7 @@
 package app;
 
-import app.filter.AuthFilter;
-import app.filter.CorsFilter;
+import app.filter.JwtSecurityFilter;
+import app.filter.CORSFilter;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
@@ -67,12 +67,12 @@ class Main extends ResourceConfig {
         rc.packages("app.resource");
 
         if (Boolean.parseBoolean((String) cfg.get(Config.CORS))) {
-            rc.register(new CorsFilter());
+            rc.register(new CORSFilter());
         }
 
         if (Boolean.parseBoolean((String) cfg.get(Config.SECURE))) {
             rc.register(RolesAllowedDynamicFeature.class);
-            rc.register(new AuthFilter());
+            rc.register(new JwtSecurityFilter());
         }
 
         return rc;

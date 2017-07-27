@@ -7,7 +7,7 @@ public class Page {
     private String name;
 
     public Page() {
-
+        // empty constructor for jackson
     }
 
     public Page(final String name, final boolean active) {

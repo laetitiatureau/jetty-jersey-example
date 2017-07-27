@@ -6,16 +6,14 @@ import java.util.Set;
 public class User {
     private String name;
     private Set<String> roles;
-    private int version;
 
     public User() {
-        // empty constructor for marshalling
+        // empty constructor for jackson
     }
 
-    public User(String name, Set<String> roles, int version) {
+    public User(String name, Set<String> roles) {
         this.name = name;
         this.roles = new HashSet<>(roles);
-        this.version = version;
     }
 
     public String getName() {
@@ -34,11 +32,4 @@ public class User {
         this.roles = roles;
     }
 
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
 }

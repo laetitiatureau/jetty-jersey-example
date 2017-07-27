@@ -1,11 +1,10 @@
 package app.service;
 
 import app.data.Token;
-
-import java.util.Set;
+import app.data.User;
+import app.exception.InvalidTokenException;
 
 public interface TokenService {
-    Token createToken(String userName, Set<String> roles, int version);
-
-    Token createToken(String jwtString);
+    Token forUser(User user);
+    Token forJwtString(String jwtString) throws InvalidTokenException;
 }

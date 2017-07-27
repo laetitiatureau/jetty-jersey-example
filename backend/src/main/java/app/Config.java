@@ -1,5 +1,7 @@
 package app;
 
+import app.exception.ConfigurationException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
