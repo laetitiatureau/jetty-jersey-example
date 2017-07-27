@@ -1,6 +1,8 @@
 package app;
 
 import app.exception.ConfigurationException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.impl.crypto.MacProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +23,8 @@ public class Config {
     public static final String WEBROOT = "webroot";
     public static final String CORS = "http.cors";
     public static final String SECURE = "auth";
+    public static final String JWT_KEY = "jwt.key";
+    public static final String JWT_KEY_ALG = "jwt.keyalg";
 
     public static Map<String, Object> loadConfig(final Properties props) throws IOException {
         Map<String, Object> cfg = new LinkedHashMap<>();
@@ -64,6 +68,13 @@ public class Config {
         }
 
         cfg.put(CORS, props.getProperty(CORS, "false"));
+
+        String secure = props.getProperty(SECURE, "false");
+        if ("true".equals(secure)) {
+            SignatureAlgorithm algorithm = SignatureAlgorithm.HS512;
+            cfg.put(JWT_KEY, MacProvider.generateKey(algorithm));
+            cfg.put(JWT_KEY_ALG, algorithm);
+        }
 
         cfg.put(SECURE, props.getProperty(SECURE, "false"));
 

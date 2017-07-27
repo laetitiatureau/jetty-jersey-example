@@ -4,18 +4,20 @@ import app.data.Token;
 import app.data.User;
 import app.exception.EntityNotFoundException;
 import app.exception.InvalidTokenException;
-import app.service.*;
+import app.service.JwtTokenService;
+import app.service.DummyUserService;
+import app.service.TokenService;
+import app.service.UserService;
 import org.glassfish.jersey.server.ContainerRequest;
 
 import javax.annotation.Priority;
+import javax.inject.Singleton;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.*;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.security.Principal;
@@ -23,11 +25,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Provider
+@Singleton
 @Priority(Priorities.AUTHENTICATION)
 public class JwtSecurityFilter implements ContainerRequestFilter {
 
-    private TokenService tokenService = new DefaultTokenService();
-    private UserService userService = new DummyUserService();
+    private final TokenService tokenService;
+    private final UserService userService;
+
+    public JwtSecurityFilter(@Context Configuration config) {
+        this.userService = new DummyUserService();
+        this.tokenService = new JwtTokenService(config);
+    }
+
+    public JwtSecurityFilter(final TokenService tokenService, final UserService userService) {
+        this.tokenService = tokenService;
+        this.userService = userService;
+    }
 
     @Override
     public void filter(final ContainerRequestContext requestContext) throws IOException {

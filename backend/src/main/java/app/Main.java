@@ -2,6 +2,8 @@ package app;
 
 import app.filter.JwtSecurityFilter;
 import app.filter.CORSFilter;
+import app.resource.AuthResource;
+import app.resource.PageResource;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
@@ -64,15 +66,16 @@ class Main extends ResourceConfig {
         final ResourceConfig rc = new ResourceConfig();
 
         rc.addProperties(cfg);
-        rc.packages("app.resource");
+        rc.register(PageResource.class);
 
         if (Boolean.parseBoolean((String) cfg.get(Config.CORS))) {
-            rc.register(new CORSFilter());
+            rc.register(CORSFilter.class);
         }
 
         if (Boolean.parseBoolean((String) cfg.get(Config.SECURE))) {
+            rc.register(AuthResource.class);
             rc.register(RolesAllowedDynamicFeature.class);
-            rc.register(new JwtSecurityFilter());
+            rc.register(JwtSecurityFilter.class);
         }
 
         return rc;

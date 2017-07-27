@@ -23,6 +23,7 @@ public class CorsFilterTest {
         when(responseContext.getHeaders()).thenReturn(headers);
         filter.filter(requestContext, responseContext);
 
+        assertThat(headers, hasKey("Access-Control-Allow-Credentials"));
         assertThat(headers, hasKey("Access-Control-Allow-Origin"));
         assertThat(headers, hasKey("Access-Control-Allow-Methods"));
         assertThat(headers, hasKey("Access-Control-Allow-Headers"));

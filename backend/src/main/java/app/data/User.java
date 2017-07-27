@@ -1,6 +1,7 @@
 package app.data;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class User {
@@ -32,4 +33,20 @@ public class User {
         this.roles = roles;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        } else if (!(other instanceof User)) {
+            return false;
+        } else {
+            User otherUser = (User) other;
+            return Objects.equals(name, otherUser.name) && Objects.equals(roles, otherUser.roles);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, roles);
+    }
 }

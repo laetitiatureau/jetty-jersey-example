@@ -1,16 +1,20 @@
 package app;
 
 import app.exception.ConfigurationException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.security.Key;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -90,5 +94,18 @@ public class ConfigTest {
         properties.put(Config.WEBCACHE, "false");
         Map<String, Object> processed = Config.loadConfig(properties);
         assertEquals(false, processed.get(Config.WEBCACHE));
+    }
+
+    @Test
+    public void validKeyIfSecureConfigFlagSet() throws IOException {
+        Properties properties = new Properties();
+        properties.put(Config.PAGES, "page1");
+        properties.put(Config.SECURE, "true");
+
+        Map<String, Object> processed = Config.loadConfig(properties);
+        assertEquals(SignatureAlgorithm.HS512, processed.get(Config.JWT_KEY_ALG));
+
+        Key key = (Key) processed.get(Config.JWT_KEY);
+        assertEquals(SignatureAlgorithm.HS512.getJcaName(), key.getAlgorithm());
     }
 }

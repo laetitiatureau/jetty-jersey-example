@@ -3,26 +3,28 @@ package app.resource;
 import app.data.Token;
 import app.data.User;
 import app.exception.UnauthorizedException;
-import app.service.*;
+import app.service.JwtTokenService;
+import app.service.DummyUserService;
+import app.service.TokenService;
+import app.service.UserService;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.logging.Logger;
 
 @PermitAll
 @Path("auth")
 public class AuthResource {
 
-    private static final Logger log = Logger.getGlobal();
+    private final TokenService authTokenFactory;
+    private final UserService userService;
 
-    private TokenService authTokenFactory;
-    private UserService userService;
-
-    public AuthResource() {
+    public AuthResource(@Context Configuration config) {
+        this.authTokenFactory = new JwtTokenService(config);
         this.userService = new DummyUserService();
-        this.authTokenFactory = new DefaultTokenService();
     }
 
     public AuthResource(TokenService authTokenFactory, UserService userService) {
@@ -40,8 +42,10 @@ public class AuthResource {
             Token token = authTokenFactory.forUser(user);
 
             return Response.ok(token).build();
-        } catch (UnauthorizedException exception) {
+        } catch (UnauthorizedException e) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }

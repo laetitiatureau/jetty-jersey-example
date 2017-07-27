@@ -18,6 +18,5 @@ public class CORSFilter implements ContainerResponseFilter {
                 String.join(",", HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE));
         headers.add("Access-Control-Allow-Headers",
                 String.join(",", HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION));
-//        headers.add("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
     }
 }

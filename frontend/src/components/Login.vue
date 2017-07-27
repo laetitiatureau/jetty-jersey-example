@@ -5,7 +5,7 @@
         You need to login first.
       </h1>
       <div class="account-wall">
-        <img class="profile-img" src="/assets/logo.png"
+        <img class="profile-img" src="https://cloud.githubusercontent.com/assets/398893/3528156/4d3d53a8-078c-11e4-8518-820d61886e7a.gif"
 alt="">
         <form @submit.prevent="login" class="form-signin">
           <input class="form-control" v-model="email" placeholder="email" type="text" required autofocus>

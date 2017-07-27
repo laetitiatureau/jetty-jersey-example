@@ -12,7 +12,7 @@ Vue.use(VueRouter)
 
 Vue.http.interceptors.push((request, next) => {
   if (auth.loggedIn()) {
-    request.headers.set('Authorization', auth.getToken())
+    request.headers.set('Authorization', 'Bearer ' + auth.getToken())
   }
   next()
 })

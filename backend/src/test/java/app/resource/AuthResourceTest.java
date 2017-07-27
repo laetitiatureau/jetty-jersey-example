@@ -18,6 +18,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,18 +67,32 @@ public class AuthResourceTest extends JerseyTest {
 
     @Test
     public void testAuthWithUserServiceException() throws UnauthorizedException {
-        when(userService.authenticate(anyString(), anyString())).thenThrow(
-                new NotAuthorizedException("User not found"));
+        when(userService.authenticate(any(), any())).thenThrow(
+                new UnauthorizedException());
 
         Form form = new Form();
         form.param("username", "foo");
         form.param("password", "bar");
 
-        Response response = target("/auth").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.form(form));
+        Response response = target("/auth").
+                request(MediaType.APPLICATION_JSON_TYPE).
+                post(Entity.form(form));
 
         assertEquals(401, response.getStatus());
-
-
     }
 
+    @Test
+    public void allOtherExceptionsShouldReturnInternalServerError() throws UnauthorizedException {
+        when(userService.authenticate(any(), any())).thenThrow(new RuntimeException("BOOM!"));
+
+        Form form = new Form();
+        form.param("username", "foo");
+        form.param("password", "bar");
+
+        Response response = target("/auth").
+                request(MediaType.APPLICATION_JSON_TYPE).
+                post(Entity.form(form));
+
+        assertEquals(500, response.getStatus());
+    }
 }

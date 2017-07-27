@@ -5,7 +5,6 @@ import app.data.PageList;
 import app.service.DefaultPageService;
 import app.service.PageService;
 
-import javax.annotation.security.DenyAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
@@ -13,6 +12,8 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+// this is a singleton because the page service needs to be one and it
+// was easy to set up.
 @Singleton
 @Path("pages")
 @Produces(MediaType.APPLICATION_JSON)
