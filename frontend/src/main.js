@@ -2,10 +2,12 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 import VueRouter from 'vue-router'
 
-import auth from './auth'
+import Alert from './components/Alert.vue'
 import App from './components/App.vue'
-import Main from './components/Main.vue'
 import Login from './components/Login.vue'
+import Main from './components/Main.vue'
+
+import auth from './auth'
 
 Vue.use(VueResource)
 Vue.use(VueRouter)

@@ -1,10 +1,7 @@
 <template>
   <div class="row">
+      <Alert v-if="alert" v-bind:message="alert"/>
       <h2 class="text-center">Maintenance Pages</h2>
-      <div v-if="info_text" class="col-sm-4 col-sm-offset-4 alert alert-success alert-dismissible" role="alert">
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-  {{ info_text }}
-</div>
       <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
           <PageList title="Env1" :pages="env1_pages"/>
       </div>
@@ -21,13 +18,15 @@
 </template>
 
 <script>
+import Alert from './Alert.vue'
 import PageList from './PageList.vue'
+import auth from '../auth'
 
 export default {
   name: 'main',
   data () {
     return {
-      info_text: "",
+      alert: '',
       all_pages: [],
       env1_pages: [],
       env2_pages: [],
@@ -35,35 +34,56 @@ export default {
     }
   },
   components: {
-      PageList
+      PageList, Alert
   },
   methods: {
     fetchPages() {
-        this.$http.get('http://localhost:8080/api/pages')
-        .then(function(response) {
+        this.$http.get('http://localhost:8080/api/pages').then(response => {
             this.all_pages = response.body.pages
             this.env1_pages = this.filterBy(response.body.pages, "Env1")
             this.env2_pages = this.filterBy(response.body.pages, "Env2")
             this.env3_pages = this.filterBy(response.body.pages, "Env3")
+        }, response => {
+            if (response.status == 401) {
+              auth.logout()
+              this.$router.push('/login')
+            }
         })
     },
     savePages() {
+        var res
         for (var i = 0; i < this.all_pages.length; i++) {
-            this.savePage(this.all_pages[i])
+            var success = this.savePage(this.all_pages[i])
+            if (success) {
+                this.alert = 'error'
+                return
+            }
         }
-        this.info_text = "Your changes were saved."
+
+        this.alert = "Your changes were saved."
+        this.$router.push('/')
     },
     savePage(page) {
         if (page.active == true) {
-            this.$http.put('http://localhost:8080/api/pages/' + page.name)
-                .then(function(response) {
-                  console.log(response)
-                })
+          this.$http.put('http://localhost:8080/api/pages/' + page.name).then(response => {
+            return true;
+          }, response => {
+            this.alert = 'error'
+            if (response.status === 401) {
+              auth.logout()
+              this.$router.push('/login')
+            }
+          })
         } else {
-            this.$http.delete('http://localhost:8080/api/pages/' + page.name)
-                .then(function(response) {
-                   console.log(response)
-                })
+          this.$http.delete('http://localhost:8080/api/pages/' + page.name).then(response => {
+            return true;
+          }, response => {
+            this.alert = 'error'
+            if (response.status === 401) {
+              auth.logout()
+              this.$router.push('/login')
+            }
+          })
         }
     },
     filterBy(list, value){
