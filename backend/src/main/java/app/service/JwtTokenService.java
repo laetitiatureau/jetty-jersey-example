@@ -3,6 +3,7 @@ package app.service;
 import app.Config;
 import app.data.Token;
 import app.data.User;
+import app.exception.ConfigurationException;
 import app.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -29,6 +30,11 @@ public class JwtTokenService implements TokenService {
     public JwtTokenService(@Context final Configuration config) {
         this.signingKey = (Key) config.getProperty(Config.JWT_KEY);
         this.signatureAlgorithm = (SignatureAlgorithm) config.getProperty(Config.JWT_KEY_ALG);
+
+        if (this.signingKey == null || this.signatureAlgorithm == null) {
+            throw new ConfigurationException("invalid configuration");
+        }
+
         this.expiryTime = Period.ofDays(1);
     }
 

@@ -26,6 +26,10 @@ public class Config {
     public static final String JWT_KEY = "jwt.key";
     public static final String JWT_KEY_ALG = "jwt.keyalg";
 
+    private Config() {
+        // static methods only - this class shouldn't be instantiated
+    }
+
     public static Map<String, Object> loadConfig(final Properties props) throws IOException {
         Map<String, Object> cfg = new LinkedHashMap<>();
         cfg.put(HTTP_URI, props.getProperty(HTTP_URI, "http://0.0.0.0"));

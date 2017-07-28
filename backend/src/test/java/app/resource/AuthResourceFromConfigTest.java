@@ -21,7 +21,10 @@ import java.security.Key;
 
 import static org.junit.Assert.assertEquals;
 
-public class AuthResourceInitTest extends JerseyTest {
+/**
+ * Test creation of a AuthResource for jax-rs configuration
+ */
+public class AuthResourceFromConfigTest extends JerseyTest {
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS512;
     private static final Key signingKey = MacProvider.generateKey(signatureAlgorithm);
     private static Gson gson = new Gson();

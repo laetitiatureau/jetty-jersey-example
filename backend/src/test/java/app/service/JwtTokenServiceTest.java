@@ -3,6 +3,7 @@ package app.service;
 import app.Config;
 import app.data.Token;
 import app.data.User;
+import app.exception.ConfigurationException;
 import app.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -88,7 +89,7 @@ public class JwtTokenServiceTest {
         service.forJwtString(token);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ConfigurationException.class)
     public void buildFromEmptyConfigShouldFail() {
         TokenService ts = new JwtTokenService(new ResourceConfig());
         User user = new User("joe@example.com",

@@ -76,7 +76,6 @@ public class DefaultPageService implements PageService {
         try {
             lock.writeLock().lock();
             createPageFile(pageName);
-            logger.info("Activated page " + pageName);
             return new Page(pageName, true);
         } finally {
             lock.writeLock().unlock();
@@ -93,7 +92,6 @@ public class DefaultPageService implements PageService {
         try {
             lock.writeLock().lock();
             removePageFile(pageName);
-            logger.info("Deactivated page " + pageName);
             return new Page(pageName, false);
         } finally {
             lock.writeLock().unlock();
@@ -113,9 +111,10 @@ public class DefaultPageService implements PageService {
     private void createPageFile(final String pageName) {
         File pageFile = new File(workdir, pageName);
         try {
-            boolean status = pageFile.createNewFile();
-            if (!status) {
-                // file already exists
+            boolean created = pageFile.createNewFile();
+
+            if (created) {
+                logger.info("Activated page " + pageName);
             }
         } catch (IOException e) {
             throw new PageServiceException("Could not create file " + pageFile.toString(), e);
@@ -129,12 +128,16 @@ public class DefaultPageService implements PageService {
      */
     private void removePageFile(final String pageName) {
         File pageFile = new File(workdir, pageName);
+
         if (!pageFile.exists()) {
             return;
         }
 
         boolean deleted = pageFile.delete();
-        if (!deleted) {
+
+        if (deleted) {
+            logger.info("Deactivated page " + pageName);
+        } else {
             throw new PageServiceException("Could not delete file " + pageFile.toString());
         }
     }
