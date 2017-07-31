@@ -1,5 +1,6 @@
 package app.filter;
 
+import app.Config;
 import app.data.Token;
 import app.data.User;
 import app.exception.EntityNotFoundException;
@@ -19,8 +20,10 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.Provider;
+import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,13 +36,13 @@ public class JwtSecurityFilter implements ContainerRequestFilter {
     private final UserService userService;
 
     public JwtSecurityFilter(@Context Configuration config) {
-        this.userService = new DummyUserService();
+        this.userService = new DummyUserService((File) config.getProperty(Config.CONFDIR));
         this.tokenService = new JwtTokenService(config);
     }
 
     public JwtSecurityFilter(final TokenService tokenService, final UserService userService) {
-        this.tokenService = tokenService;
         this.userService = userService;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -53,17 +56,19 @@ public class JwtSecurityFilter implements ContainerRequestFilter {
         String path = ((ContainerRequest) requestContext).getPath(true);
 
         if (HttpMethod.POST.equals(method) && "auth".equals(path)) {
-            // allow access to auth resource so that it's possible to log in
-            final User user = userService.getAnonymousUser();
-            return new DefaultSecurityContext(user::getName, user.getRoles());
-        } else if (HttpMethod.OPTIONS.equals(method)) {
+            return new DefaultSecurityContext(() -> "anonymous", Collections.emptySet());
+        }
+
+        if (HttpMethod.OPTIONS.equals(method)) {
             throw new WebApplicationException(createOptionsResponse());
-        } else if (authHeader != null) {
-            Token token = tokenFromAuthHeader(authHeader);
-            return securityContextFromToken(token);
-        } else {
+        }
+
+        if (authHeader == null) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
+
+        Token token = tokenFromAuthHeader(authHeader);
+        return securityContextFromToken(token);
     }
 
     private Token tokenFromAuthHeader(final String authHeader) {

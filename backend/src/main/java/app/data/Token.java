@@ -1,20 +1,19 @@
 package app.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
 public class Token {
-    private String token;
+    private final String token;
 
     @JsonIgnore
-    private String username;
+    private final String username;
 
-    public Token() {
-        // empty constructor for jackson
-    }
-
-    public Token(String token, String username) {
+    @JsonCreator
+    public Token(@JsonProperty("token") String token, @JsonProperty("username") String username) {
         this.token = token;
         this.username = username;
     }
@@ -23,16 +22,8 @@ public class Token {
         return token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     @Override

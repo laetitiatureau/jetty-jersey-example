@@ -15,16 +15,17 @@ import java.util.logging.Logger;
 public class Config {
     private static final Logger logger = Logger.getGlobal();
 
-    public static final String WEBCACHE = "webcache";
-    public static final String PAGES = "pages";
-    public static final String HTTP_URI = "http.uri";
-    public static final String HTTP_PORT = "http.port";
-    public static final String WORKDIR = "workdir";
-    public static final String WEBROOT = "webroot";
+    public static final String CONFDIR = "confdir";
     public static final String CORS = "http.cors";
-    public static final String SECURE = "auth";
+    public static final String HTTP_PORT = "http.port";
+    public static final String HTTP_URI = "http.uri";
     public static final String JWT_KEY = "jwt.key";
     public static final String JWT_KEY_ALG = "jwt.keyalg";
+    public static final String PAGES = "pages";
+    public static final String SECURE = "auth";
+    public static final String WEBCACHE = "webcache";
+    public static final String WEBROOT = "webroot";
+    public static final String WORKDIR = "workdir";
 
     private Config() {
         // static methods only - this class shouldn't be instantiated
@@ -59,7 +60,7 @@ public class Config {
         if (webRoot != null) {
             File webRootDir = new File(webRoot);
             if (!webRootDir.exists() || !webRootDir.canRead()) {
-                throw new ConfigurationException("Config setting for 'webroot' is invalid - can access directory " + webRoot);
+                throw new ConfigurationException("Config setting for 'webroot' is invalid - can't access directory " + webRoot);
             }
             cfg.put(WEBROOT, webRoot);
         }
@@ -81,6 +82,23 @@ public class Config {
         }
 
         cfg.put(SECURE, props.getProperty(SECURE, "false"));
+
+        if (props.getProperty(CONFDIR) != null) {
+            String confDirString = props.getProperty(CONFDIR);
+            File confDir = new File(confDirString);
+            if (confDir.isDirectory() && confDir.canRead() && confDir.canWrite()) {
+                cfg.put(CONFDIR, confDir);
+            } else {
+                throw new ConfigurationException("Config setting for 'confdir' is invalid - can't access directory" + confDirString);
+            }
+        } else {
+            File tmpConfDir = Files.createTempDirectory(null).toFile();
+            tmpConfDir.deleteOnExit();
+
+            cfg.put(CONFDIR, tmpConfDir);
+            logger.warning("Config setting for 'confdir' not defined - " +
+                    "using temporary directory. Files will be deleted on shutdown.");
+        }
 
         for (Map.Entry<String, Object> entry : cfg.entrySet()) {
             logger.info("config: " + entry.getKey() + "=" + entry.getValue());

@@ -10,13 +10,18 @@ import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.security.Key;
 
 import static org.junit.Assert.assertEquals;
@@ -25,6 +30,7 @@ import static org.junit.Assert.assertEquals;
  * Test creation of a AuthResource for jax-rs configuration
  */
 public class AuthResourceFromConfigTest extends JerseyTest {
+
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS512;
     private static final Key signingKey = MacProvider.generateKey(signatureAlgorithm);
     private static Gson gson = new Gson();
@@ -34,6 +40,15 @@ public class AuthResourceFromConfigTest extends JerseyTest {
         ResourceConfig rc = new ResourceConfig();
         rc.property(Config.JWT_KEY, signingKey);
         rc.property(Config.JWT_KEY_ALG, signatureAlgorithm);
+
+        try {
+            File tmpConfDir = Files.createTempDirectory(null).toFile();
+            tmpConfDir.deleteOnExit();
+            rc.property(Config.CONFDIR, tmpConfDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         forceSet(TestProperties.CONTAINER_PORT, "0");
         return new ResourceConfig().register(new AuthResource(rc));
     }

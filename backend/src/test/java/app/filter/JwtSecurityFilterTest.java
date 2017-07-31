@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JwtSecurityFilterTest extends JerseyTest {
-    private static final User testUser = new User("foo", Collections.singleton("user"));
     private UserService userService;
     private TokenService tokenService;
 
@@ -46,9 +45,6 @@ public class JwtSecurityFilterTest extends JerseyTest {
 
     @Test
     public void filterShouldLetAuthRequestsPassThrough() {
-        when(userService.getAnonymousUser()).thenReturn(new User("anonymous",
-                Collections.emptySet()));
-
         Form form = new Form();
         form.param("username", "foo");
         form.param("password", "foo");

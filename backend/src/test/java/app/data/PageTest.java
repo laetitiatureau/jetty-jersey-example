@@ -8,9 +8,7 @@ import static org.junit.Assert.assertNotEquals;
 public class PageTest {
     @Test
     public void testEquals() {
-        final Page page1 = new Page();
-        page1.setName("1");
-        page1.setActive(true);
+        final Page page1 = new Page("1", true);
 
         assertEquals(page1, page1);
         assertNotEquals(page1,null);

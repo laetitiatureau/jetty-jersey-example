@@ -1,16 +1,16 @@
 package app.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class Page {
-    private boolean active;
-    private String name;
+    private final boolean active;
+    private final String name;
 
-    public Page() {
-        // empty constructor for jackson
-    }
-
-    public Page(final String name, final boolean active) {
+    @JsonCreator
+    public Page(@JsonProperty("name") final String name, @JsonProperty("active") final boolean active) {
         this.name = name;
         this.active = active;
     }
@@ -19,16 +19,8 @@ public class Page {
         return active;
     }
 
-    public void setActive(final boolean active) {
-        this.active = active;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     @Override

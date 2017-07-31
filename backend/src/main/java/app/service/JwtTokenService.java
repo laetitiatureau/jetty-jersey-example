@@ -46,10 +46,9 @@ public class JwtTokenService implements TokenService {
 
     @Override
     public Token forUser(final User user) {
-        Token authToken = new Token();
-        authToken.setToken(createTokenString(user.getName()));
-        authToken.setUsername(user.getName());
-        return authToken;
+        return new Token(
+                createTokenString(user.getName()),
+                user.getName());
     }
 
     @Override
@@ -68,11 +67,7 @@ public class JwtTokenService implements TokenService {
             throw new InvalidTokenException();
         }
 
-        Token token = new Token();
-        token.setToken(jwtString);
-        token.setUsername(username);
-
-        return token;
+        return new Token(jwtString, username);
     }
 
     private Claims verifyTokenString(final String jwtString) throws InvalidTokenException {

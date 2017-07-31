@@ -1,18 +1,18 @@
 package app.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class User {
-    private String name;
-    private Set<String> roles;
+    private final String name;
+    private final Set<String> roles;
 
-    public User() {
-        // empty constructor for jackson
-    }
-
-    public User(String name, Set<String> roles) {
+    @JsonCreator
+    public User(@JsonProperty("name") String name, @JsonProperty("roles") Set<String> roles) {
         this.name = name;
         this.roles = new HashSet<>(roles);
     }
@@ -21,16 +21,8 @@ public class User {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Set<String> getRoles() {
         return roles;
-    }
-
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
     }
 
     @Override

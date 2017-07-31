@@ -61,9 +61,7 @@ public class DefaultPageService implements PageService {
         for (String pageName : allPageNames) {
             pages.add(getPage(pageName));
         }
-        PageList pageList = new PageList();
-        pageList.setPages(pages);
-        return pageList;
+        return new PageList(pages);
     }
 
     @Override

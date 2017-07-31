@@ -12,8 +12,6 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-// this is a singleton because the page service needs to be one and it
-// was easy to set up.
 @Singleton
 @Path("pages")
 @Produces(MediaType.APPLICATION_JSON)

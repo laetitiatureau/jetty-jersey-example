@@ -1,5 +1,6 @@
 package app.resource;
 
+import app.Config;
 import app.data.Token;
 import app.data.User;
 import app.exception.UnauthorizedException;
@@ -9,14 +10,17 @@ import app.service.TokenService;
 import app.service.UserService;
 
 import javax.annotation.security.PermitAll;
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 
-@PermitAll
+@Singleton
 @Path("auth")
+@Produces(MediaType.APPLICATION_JSON)
 public class AuthResource {
 
     private final TokenService authTokenFactory;
@@ -24,7 +28,7 @@ public class AuthResource {
 
     public AuthResource(@Context Configuration config) {
         this.authTokenFactory = new JwtTokenService(config);
-        this.userService = new DummyUserService();
+        this.userService = new DummyUserService((File) config.getProperty(Config.CONFDIR));
     }
 
     public AuthResource(TokenService authTokenFactory, UserService userService) {
@@ -33,8 +37,8 @@ public class AuthResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @PermitAll
     public Response authenticateUser(@FormParam("username") String userName,
                                      @FormParam("password") String password) {
         try {

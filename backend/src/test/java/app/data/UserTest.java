@@ -11,7 +11,7 @@ public class UserTest {
 
     @Test
     public void testEquals() {
-        User u1 = new User("foo", Collections.singleton("role1"));
+        User u1 = new User("foo",  Collections.singleton("role1"));
         assertEquals(u1, u1);
         assertNotEquals(u1, null);
         assertEquals(u1, new User("foo", Collections.singleton("role1")));

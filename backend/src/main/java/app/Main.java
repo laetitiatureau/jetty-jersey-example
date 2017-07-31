@@ -51,12 +51,9 @@ class Main extends ResourceConfig {
             server.getListener("grizzly").getFileCache().setEnabled(false);
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("Stopping server..");
-                server.shutdown();
-            }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Stopping server..");
+            server.shutdown();
         }));
 
         return server;
