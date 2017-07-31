@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-      <Alert v-if="alert" v-bind:message="alert"/>
+      <notifications/>
       <h2 class="text-center">Maintenance Pages</h2>
       <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
           <PageList title="Env1" :pages="env1_pages"/>
@@ -18,7 +18,6 @@
 </template>
 
 <script>
-import Alert from './Alert.vue'
 import PageList from './PageList.vue'
 import auth from '../auth'
 
@@ -26,7 +25,6 @@ export default {
   name: 'main',
   data () {
     return {
-      alert: '',
       all_pages: [],
       env1_pages: [],
       env2_pages: [],
@@ -34,7 +32,7 @@ export default {
     }
   },
   components: {
-      PageList, Alert
+      PageList
   },
   methods: {
     fetchPages() {
@@ -45,43 +43,60 @@ export default {
             this.env3_pages = this.filterBy(response.body.pages, "Env3")
         }, response => {
             if (response.status == 401) {
-              auth.logout()
-              this.$router.push('/login')
+              this.$notify({
+                type: 'error',
+                text: 'Authentication failed.'
+              });
+            } else {
+              this.$notify({
+                type: 'error',
+                text: 'Server error.'
+              });
             }
         })
     },
     savePages() {
-        var res
         for (var i = 0; i < this.all_pages.length; i++) {
-            var success = this.savePage(this.all_pages[i])
-            if (success) {
-                this.alert = 'error'
-                return
-            }
+          this.savePage(this.all_pages[i])
         }
 
-        this.alert = "Your changes were saved."
-        this.$router.push('/')
+       // TODO only trigger when all pages saved successfully
+        this.$notify({
+          type: 'success',
+          text: 'Your changes were saved successfully!'
+        });
     },
     savePage(page) {
         if (page.active == true) {
           this.$http.put('http://localhost:8080/api/pages/' + page.name).then(response => {
-            return true;
+            console.log("updated page: " + page.name)
           }, response => {
-            this.alert = 'error'
             if (response.status === 401) {
-              auth.logout()
-              this.$router.push('/login')
+              this.$notify({
+                type: 'error',
+                text: 'Authentication failed.'
+              });
+            } else {
+              this.$notify({
+                type: 'error',
+                text: 'Server error.'
+              });
             }
           })
         } else {
           this.$http.delete('http://localhost:8080/api/pages/' + page.name).then(response => {
-            return true;
+            console.log("updated page: " + page.name)
           }, response => {
-            this.alert = 'error'
             if (response.status === 401) {
-              auth.logout()
-              this.$router.push('/login')
+              this.$notify({
+                type: 'error',
+                text: 'Authentication failed.'
+              });
+            } else {
+              this.$notify({
+                type: 'error',
+                text: 'Server error.'
+              });
             }
           })
         }

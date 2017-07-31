@@ -50,6 +50,9 @@ public class FileUserService implements UserService {
             log.info("No user directory file found. Creating a new one.");
             log.info("Created admin user 'admin' with password " + adminPw);
             log.info("Please change the password.");
+
+            // TODO test remove me
+            addOrModifyUser("joe@example.com", "password1", null);
         }
     }
 

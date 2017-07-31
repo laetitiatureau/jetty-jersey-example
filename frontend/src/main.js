@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueResource from 'vue-resource'
 import VueRouter from 'vue-router'
+import Notifications from 'vue-notification'
 
 import Alert from './components/Alert.vue'
 import App from './components/App.vue'
@@ -11,6 +12,7 @@ import auth from './auth'
 
 Vue.use(VueResource)
 Vue.use(VueRouter)
+Vue.use(Notifications)
 
 Vue.http.interceptors.push((request, next) => {
   if (auth.loggedIn()) {

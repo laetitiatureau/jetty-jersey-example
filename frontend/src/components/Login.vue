@@ -4,6 +4,7 @@
       <h1 v-if="$route.query.redirect" class="text-center login-title">
         You need to login first.
       </h1>
+      <notifications/>
       <div class="account-wall">
         <img class="profile-img" src="https://cloud.githubusercontent.com/assets/398893/3528156/4d3d53a8-078c-11e4-8518-820d61886e7a.gif"
 alt="">
@@ -25,19 +26,20 @@ export default {
   data () {
     return {
       email: 'joe@example.com',
-      pass: '',
-      error: false
+      pass: ''
     }
   },
   methods: {
     login() {
       auth.login(this, this.email, this.pass, loggedIn => {
         if (!loggedIn) {
-          this.error = true
+          this.$notify({
+            type: 'error',
+            text: 'Login failed.'
+          });
         } else {
           this.$router.replace(this.$route.query.redirect || '/')
         }
-
       })
     }
   }

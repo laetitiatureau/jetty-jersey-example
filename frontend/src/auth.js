@@ -40,7 +40,7 @@ export default {
 function sendAuthRequest (context, email, pass, cb) {
   setTimeout(() => {
     var data = { 'username': email, 'password': pass }
-    context.$http.post('http://localhost:8080/api/auth', data, { emulateJSON: true }).then(response => {
+    context.$http.post('http://localhost:8080/api/users', data, { emulateJSON: true }).then(response => {
       cb({
         authenticated: true,
         token: response.body.token
