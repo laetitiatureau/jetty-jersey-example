@@ -49,7 +49,7 @@ public class JwtSecurityFilterTest extends JerseyTest {
         form.param("username", "foo");
         form.param("password", "foo");
 
-        Response response = target("/auth").request(MediaType.APPLICATION_JSON_TYPE).
+        Response response = target("users").request(MediaType.APPLICATION_JSON_TYPE).
                 post(Entity.form(form));
 
         assertEquals(200, response.getStatus());
@@ -122,7 +122,7 @@ public class JwtSecurityFilterTest extends JerseyTest {
     }
 
     @PermitAll
-    @Path("auth")
+    @Path("users")
     public static final class MockAuthResource {
         @POST
         @Consumes(MediaType.APPLICATION_FORM_URLENCODED)

@@ -7,6 +7,8 @@ import app.resource.PageResource;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
+import org.glassfish.grizzly.ssl.SSLContextConfigurator;
+import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -31,6 +33,7 @@ class Main extends ResourceConfig {
     }
 
     protected static HttpServer instantiateServer(final URI baseUri, final ResourceConfig application) {
+
         final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, application, false);
 
         String webroot = (String) application.getProperty(Config.WEBROOT);

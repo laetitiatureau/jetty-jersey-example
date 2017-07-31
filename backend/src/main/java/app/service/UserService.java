@@ -12,9 +12,7 @@ public interface UserService {
 
     User getUser(String userName) throws EntityNotFoundException;
 
-    User addUser(String userName, String password, Collection<String> roles);
-
-    User updateUser(String username, String password, Collection<String> roles) throws EntityNotFoundException;
+    User addOrModifyUser(String userName, String password, Collection<String> roles);
 
     void removeUser(String userName);
 }

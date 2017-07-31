@@ -54,7 +54,7 @@ public class AuthResourceTest extends JerseyTest {
         form.param("username", username);
         form.param("password", password);
 
-        Response response = target("/auth").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.form(form));
+        Response response = target("/users").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.form(form));
 
         assertEquals(200, response.getStatus());
 
@@ -74,7 +74,7 @@ public class AuthResourceTest extends JerseyTest {
         form.param("username", "foo");
         form.param("password", "bar");
 
-        Response response = target("/auth").
+        Response response = target("/users").
                 request(MediaType.APPLICATION_JSON_TYPE).
                 post(Entity.form(form));
 
@@ -89,7 +89,7 @@ public class AuthResourceTest extends JerseyTest {
         form.param("username", "foo");
         form.param("password", "bar");
 
-        Response response = target("/auth").
+        Response response = target("/users").
                 request(MediaType.APPLICATION_JSON_TYPE).
                 post(Entity.form(form));
 

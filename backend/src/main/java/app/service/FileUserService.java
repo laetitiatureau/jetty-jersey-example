@@ -14,8 +14,11 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
 
-public class DummyUserService implements UserService {
+public class FileUserService implements UserService {
+    private static final Logger log = Logger.getGlobal();
+
     private static final Set<String> DEFAULT_ROLES = Collections.unmodifiableSet(Collections.singleton("user"));
 
     private ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -26,7 +29,7 @@ public class DummyUserService implements UserService {
 
     private final File userFile;
 
-    public DummyUserService(final File configDirectory) {
+    public FileUserService(final File configDirectory) {
         if (configDirectory == null) {
             throw new IllegalArgumentException("config dir invalid");
         }
@@ -41,7 +44,12 @@ public class DummyUserService implements UserService {
             this.userDirectory = loadUsers();
         } else {
             this.userDirectory = new UserDirectory();
-            addUser("joe@example.com", "password1", null);
+            String adminPw = UUID.randomUUID().toString();
+
+            addOrModifyUser("admin", adminPw, Collections.singleton("admin"));
+            log.info("No user directory file found. Creating a new one.");
+            log.info("Created admin user 'admin' with password " + adminPw);
+            log.info("Please change the password.");
         }
     }
 
@@ -85,39 +93,18 @@ public class DummyUserService implements UserService {
     }
 
     @Override
-    public User addUser(final String username, final String password, final Collection<String> roles) {
+    public User addOrModifyUser(final String username, final String password, final Collection<String> roles) {
         try {
             lock.writeLock().lock();
 
-            if (userDirectory.getUser(username) != null) {
-                throw new IllegalArgumentException("User already exists");
-            }
+            User existingUser = userDirectory.getUser(username);
 
-            User user = new User(username, roles != null ? new HashSet<>(roles) : DEFAULT_ROLES);
+            Set<String> defaultRoles = existingUser != null ? existingUser.getRoles() : DEFAULT_ROLES;
 
-            userDirectory.addUser(user, BCrypt.hashpw(password, BCrypt.gensalt()));
-            writeUsers();
-
-            return user;
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-    @Override
-    public User updateUser(final String username, final String password, final Collection<String> roles) throws EntityNotFoundException {
-        try {
-            lock.writeLock().lock();
-
-            User currentUser = userDirectory.getUser(username);
-
-            if (currentUser == null) {
-                throw new EntityNotFoundException();
-            }
-
-            User user = new User(username, roles != null ? new HashSet<>(roles) : currentUser.getRoles());
+            User user = new User(username, roles != null ? new HashSet<>(roles) : defaultRoles);
 
             userDirectory.addUser(user, BCrypt.hashpw(password, BCrypt.gensalt()));
+
             writeUsers();
 
             return user;

@@ -2,6 +2,9 @@ package app.resource;
 
 import app.Config;
 import app.data.Token;
+import app.data.User;
+import app.data.UserDirectory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -13,6 +16,7 @@ import org.glassfish.jersey.test.TestProperties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -23,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.Key;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -43,6 +48,14 @@ public class AuthResourceFromConfigTest extends JerseyTest {
 
         try {
             File tmpConfDir = Files.createTempDirectory(null).toFile();
+
+            UserDirectory userDirectory = new UserDirectory();
+            User user = new User("joe@example.com", Collections.singleton("user"));
+            userDirectory.addUser(user, BCrypt.hashpw("password1", BCrypt.gensalt()));
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(tmpConfDir, "users.json"), userDirectory);
+
             tmpConfDir.deleteOnExit();
             rc.property(Config.CONFDIR, tmpConfDir);
         } catch (IOException e) {
@@ -59,7 +72,7 @@ public class AuthResourceFromConfigTest extends JerseyTest {
         form.param("username", "joe@example.com");
         form.param("password", "password1");
 
-        Response response = target("/auth").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.form(form));
+        Response response = target("users").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.form(form));
         assertEquals(200, response.getStatus());
         Token receivedToken = gson.fromJson(response.readEntity(String.class), Token.class);
         String tokenString = receivedToken.getToken();

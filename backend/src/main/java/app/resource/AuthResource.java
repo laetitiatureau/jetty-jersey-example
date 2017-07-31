@@ -3,13 +3,15 @@ package app.resource;
 import app.Config;
 import app.data.Token;
 import app.data.User;
+import app.exception.EntityNotFoundException;
 import app.exception.UnauthorizedException;
+import app.service.FileUserService;
 import app.service.JwtTokenService;
-import app.service.DummyUserService;
 import app.service.TokenService;
 import app.service.UserService;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Configuration;
@@ -19,8 +21,8 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 
 @Singleton
-@Path("auth")
 @Produces(MediaType.APPLICATION_JSON)
+@Path("users")
 public class AuthResource {
 
     private final TokenService authTokenFactory;
@@ -28,7 +30,7 @@ public class AuthResource {
 
     public AuthResource(@Context Configuration config) {
         this.authTokenFactory = new JwtTokenService(config);
-        this.userService = new DummyUserService((File) config.getProperty(Config.CONFDIR));
+        this.userService = new FileUserService((File) config.getProperty(Config.CONFDIR));
     }
 
     public AuthResource(TokenService authTokenFactory, UserService userService) {
@@ -51,5 +53,40 @@ public class AuthResource {
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GET
+    @Path("{username}")
+    @RolesAllowed("admin")
+    public Response getUser(@PathParam("username") String username) {
+        try {
+            User user = userService.getUser(username);
+            return Response.ok(user).build();
+        } catch (EntityNotFoundException e) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("{username}")
+    @RolesAllowed("admin")
+    public Response createModifyUser(@PathParam("username") String username, @FormParam("password") String password) {
+        try {
+            User user = userService.addOrModifyUser(username, password, null);
+
+            return Response.ok(user).build();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("{username}")
+    @RolesAllowed("admin")
+    public Response removeUser(@PathParam("username") String username) {
+        userService.removeUser(username);
+        return Response.ok().build();
     }
 }

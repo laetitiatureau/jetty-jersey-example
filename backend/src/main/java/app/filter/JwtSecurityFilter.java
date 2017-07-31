@@ -6,7 +6,7 @@ import app.data.User;
 import app.exception.EntityNotFoundException;
 import app.exception.InvalidTokenException;
 import app.service.JwtTokenService;
-import app.service.DummyUserService;
+import app.service.FileUserService;
 import app.service.TokenService;
 import app.service.UserService;
 import org.glassfish.jersey.server.ContainerRequest;
@@ -36,7 +36,7 @@ public class JwtSecurityFilter implements ContainerRequestFilter {
     private final UserService userService;
 
     public JwtSecurityFilter(@Context Configuration config) {
-        this.userService = new DummyUserService((File) config.getProperty(Config.CONFDIR));
+        this.userService = new FileUserService((File) config.getProperty(Config.CONFDIR));
         this.tokenService = new JwtTokenService(config);
     }
 
@@ -55,7 +55,7 @@ public class JwtSecurityFilter implements ContainerRequestFilter {
         String method = requestContext.getMethod().toUpperCase();
         String path = ((ContainerRequest) requestContext).getPath(true);
 
-        if (HttpMethod.POST.equals(method) && "auth".equals(path)) {
+        if (HttpMethod.POST.equals(method) && "users".equals(path)) {
             return new DefaultSecurityContext(() -> "anonymous", Collections.emptySet());
         }
 
