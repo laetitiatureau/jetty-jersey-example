@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <notifications position="bottom left"/>
+    <notifications position="bottom right"/>
     <h2 class="text-center">Maintenance Pages</h2>
     <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
       <PageList title="Env4" :pages="empty_pages"/>
@@ -49,12 +49,14 @@ import PageList from './PageList.vue'
           if (response.status == 401) {
             this.$notify({
               type: 'error',
-              text: 'Authentication failed.'
+              title: 'Authentication Failure',
+              text: 'Failed to current page states'
             });
           } else {
             this.$notify({
               type: 'error',
-              text: 'Server error.'
+              title: 'Server Error',
+              text: 'Failed to current page states'
             });
           }
         })
@@ -71,8 +73,9 @@ import PageList from './PageList.vue'
           if (response.body.updated === 'true') {
             this.$notify({
               type: 'success',
-              title: 'Page ' + page.name,
-              text: (page.active ? 'activated' : 'deactivated') + ' successfully'
+              title: 'Operation successful',
+              duration: 5000,
+              text: 'Page ' + page.name + ' ' + (page.active ? 'activated' : 'deactivated')
             });
           }
         }

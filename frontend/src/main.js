@@ -6,7 +6,6 @@ import VueResource from 'vue-resource'
 import VueRouter from 'vue-router'
 import Notifications from 'vue-notification'
 
-import Alert from './components/Alert.vue'
 import App from './components/App.vue'
 import Login from './components/Login.vue'
 import Main from './components/Main.vue'
