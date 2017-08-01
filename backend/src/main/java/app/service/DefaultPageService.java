@@ -2,6 +2,7 @@ package app.service;
 
 import app.data.Page;
 import app.data.PageList;
+import app.exception.EntityNotFoundException;
 import app.exception.PageServiceException;
 
 import javax.ws.rs.NotFoundException;
@@ -41,9 +42,9 @@ public class DefaultPageService implements PageService {
     }
 
     @Override
-    public Page getPage(final String pageName) {
+    public Page getPage(final String pageName) throws EntityNotFoundException {
         if (isInvalidPageName(pageName)) {
-            throw new NotFoundException();
+            throw new EntityNotFoundException();
         }
 
         ReentrantReadWriteLock lock = fileLocks.get(pageName);
@@ -59,15 +60,19 @@ public class DefaultPageService implements PageService {
     public PageList getPageList() {
         List<Page> pages = new LinkedList<>();
         for (String pageName : allPageNames) {
-            pages.add(getPage(pageName));
+            try {
+                pages.add(getPage(pageName));
+            } catch (EntityNotFoundException e) {
+                throw new RuntimeException("Unexpected exception", e);
+            }
         }
         return new PageList(pages);
     }
 
     @Override
-    public boolean activatePage(final String pageName) {
+    public boolean activatePage(final String pageName) throws EntityNotFoundException {
         if (isInvalidPageName(pageName)) {
-            throw new NotFoundException();
+            throw new EntityNotFoundException();
         }
 
         ReentrantReadWriteLock lock = fileLocks.get(pageName);
@@ -81,9 +86,9 @@ public class DefaultPageService implements PageService {
     }
 
     @Override
-    public boolean deactivatePage(final String pageName) {
+    public boolean deactivatePage(final String pageName) throws EntityNotFoundException {
         if (isInvalidPageName(pageName)) {
-            throw new NotFoundException();
+            throw new EntityNotFoundException();
         }
 
         ReentrantReadWriteLock lock = fileLocks.get(pageName);
