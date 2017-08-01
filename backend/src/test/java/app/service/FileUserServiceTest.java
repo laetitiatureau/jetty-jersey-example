@@ -7,14 +7,33 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+import java.util.Collections;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class FileUserServiceTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Test(expected = IllegalArgumentException.class)
+    public void configDirectoryMustBeProvided() {
+        new FileUserService(null);
+    }
+
+    @Test
+    public void emptyConfigFileAdminUserGetsCreated() {
+        UserService userService = new FileUserService(tempFolder.getRoot());
+        User user = userService.getUser("admin");
+        assertEquals("admin", user.getName());
+        assertEquals(Collections.singleton("admin"), user.getRoles());
+    }
 
     @Test(expected = UnauthorizedException.class)
     public void nonExistingUserCannotLogin() throws UnauthorizedException {
@@ -53,5 +72,14 @@ public class FileUserServiceTest {
         UserService userService = new FileUserService(tempFolder.getRoot());
         userService.addOrModifyUser("joe@example.com", "password1", null);
         userService.getUser("joe@regular.com");
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void removeUserRemovesTheUser() {
+        UserService userService = new FileUserService(tempFolder.getRoot());
+        userService.addOrModifyUser("joe@example.com", "password1", null);
+        assertNotNull(userService.getUser("joe@example.com"));
+        userService.removeUser("joe@example.com");
+        assertNull(userService.getUser("joe@example.com"));
     }
 }

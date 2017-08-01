@@ -2,6 +2,7 @@ package app.resource;
 
 import app.data.Token;
 import app.data.User;
+import app.exception.EntityNotFoundException;
 import app.exception.UnauthorizedException;
 import app.service.TokenService;
 import app.service.UserService;
@@ -97,5 +98,31 @@ public class AuthResourceTest extends JerseyTest {
                 post(Entity.form(form));
 
         assertEquals(500, response.getStatus());
+    }
+
+    @Test
+    public void getExistingUser() throws IOException {
+        when(userService.getUser("foo")).
+                thenReturn(new User("foo", Collections.singleton("bla")));
+        Response response = target("/users/foo")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+
+        assertEquals(200, response.getStatus());
+        String payload = response.readEntity(String.class);
+        ObjectReader reader = objectMapper.readerFor(User.class);
+        User user = reader.readValue(payload);
+        assertEquals("foo", user.getName());
+        assertEquals(Collections.singleton("bla"), user.getRoles());
+    }
+
+    @Test
+    public void getNonExistingUserReturnsNotFound() {
+        when(userService.getUser(any())).thenThrow(new EntityNotFoundException());
+        Response response = target("/users/misterx")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+
+        assertEquals(404, response.getStatus());
     }
 }
