@@ -59,46 +59,36 @@ export default {
         for (var i = 0; i < this.all_pages.length; i++) {
           this.savePage(this.all_pages[i])
         }
-
-       // TODO only trigger when all pages saved successfully
-        this.$notify({
-          type: 'success',
-          text: 'Your changes were saved successfully!'
-        });
     },
     savePage(page) {
+        var uri = 'http://localhost:8080/api/pages/' + page.name
+
+        var successHandler = (response) => {
+          this.$notify({
+            type: 'success',
+            text: 'Page ' + page.name + ' updated - active: ' + page.active
+          });
+        }
+
+        var errorHandler = (response) => {
+          var errorMessage
+
+          if (response.status === 401) {
+            errorMessage = 'Page ' + page.name + ' - authentication failed'
+          } else {
+            errorMessage = 'Page ' + page.name + ' - server error'
+          }
+
+          this.$notify({
+            type: 'error',
+            text: errorMessage
+          });
+        }
+
         if (page.active == true) {
-          this.$http.put('http://localhost:8080/api/pages/' + page.name).then(response => {
-            console.log("updated page: " + page.name)
-          }, response => {
-            if (response.status === 401) {
-              this.$notify({
-                type: 'error',
-                text: 'Authentication failed.'
-              });
-            } else {
-              this.$notify({
-                type: 'error',
-                text: 'Server error.'
-              });
-            }
-          })
+          this.$http.put(uri).then(successHandler, errorHandler)
         } else {
-          this.$http.delete('http://localhost:8080/api/pages/' + page.name).then(response => {
-            console.log("updated page: " + page.name)
-          }, response => {
-            if (response.status === 401) {
-              this.$notify({
-                type: 'error',
-                text: 'Authentication failed.'
-              });
-            } else {
-              this.$notify({
-                type: 'error',
-                text: 'Server error.'
-              });
-            }
-          })
+          this.$http.delete(uri).then(successHandler, errorHandler)
         }
     },
     filterBy(list, value){
