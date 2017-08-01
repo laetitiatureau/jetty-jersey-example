@@ -65,7 +65,7 @@ public class DefaultPageService implements PageService {
     }
 
     @Override
-    public Page activatePage(final String pageName) {
+    public boolean activatePage(final String pageName) {
         if (isInvalidPageName(pageName)) {
             throw new NotFoundException();
         }
@@ -73,15 +73,15 @@ public class DefaultPageService implements PageService {
         ReentrantReadWriteLock lock = fileLocks.get(pageName);
         try {
             lock.writeLock().lock();
-            createPageFile(pageName);
-            return new Page(pageName, true);
+            boolean changed = createPageFile(pageName);
+            return changed;
         } finally {
             lock.writeLock().unlock();
         }
     }
 
     @Override
-    public Page deactivatePage(final String pageName) {
+    public boolean deactivatePage(final String pageName) {
         if (isInvalidPageName(pageName)) {
             throw new NotFoundException();
         }
@@ -89,8 +89,8 @@ public class DefaultPageService implements PageService {
         ReentrantReadWriteLock lock = fileLocks.get(pageName);
         try {
             lock.writeLock().lock();
-            removePageFile(pageName);
-            return new Page(pageName, false);
+            boolean changed = removePageFile(pageName);
+            return changed;
         } finally {
             lock.writeLock().unlock();
         }
@@ -106,7 +106,7 @@ public class DefaultPageService implements PageService {
      *
      * @param pageName the name of the new file
      */
-    private void createPageFile(final String pageName) {
+    private boolean createPageFile(final String pageName) {
         File pageFile = new File(workdir, pageName);
         try {
             boolean created = pageFile.createNewFile();
@@ -114,6 +114,8 @@ public class DefaultPageService implements PageService {
             if (created) {
                 logger.info("Activated page " + pageName);
             }
+
+            return created;
         } catch (IOException e) {
             throw new PageServiceException("Could not create file " + pageFile.toString(), e);
         }
@@ -124,17 +126,18 @@ public class DefaultPageService implements PageService {
      *
      * @param pageName name of the file to delete
      */
-    private void removePageFile(final String pageName) {
+    private boolean removePageFile(final String pageName) {
         File pageFile = new File(workdir, pageName);
 
         if (!pageFile.exists()) {
-            return;
+            return false;
         }
 
         boolean deleted = pageFile.delete();
 
         if (deleted) {
             logger.info("Deactivated page " + pageName);
+            return deleted;
         } else {
             throw new PageServiceException("Could not delete file " + pageFile.toString());
         }

@@ -8,7 +8,7 @@ public interface PageService {
 
     PageList getPageList();
 
-    Page activatePage(String pageName);
+    boolean activatePage(String pageName);
 
-    Page deactivatePage(String pageName);
+    boolean deactivatePage(String pageName);
 }
