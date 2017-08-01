@@ -62,6 +62,9 @@ import PageList from './PageList.vue'
         })
       },
       savePages() {
+        // TODO: instead of showing notifications separately for each ajax call, we should probably
+        // TODO: use Promise.all to wait for all ajax calls and then generate a single notification
+        // TODO: with a summary
         for (var i = 0; i < this.all_pages.length; i++) {
           this.savePage(this.all_pages[i])
         }
