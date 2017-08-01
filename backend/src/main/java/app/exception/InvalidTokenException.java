@@ -1,4 +1,4 @@
 package app.exception;
 
-public class InvalidTokenException extends Exception {
+public class InvalidTokenException extends RuntimeException {
 }

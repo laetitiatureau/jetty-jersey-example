@@ -5,26 +5,28 @@ import app.data.User;
 import app.exception.UnauthorizedException;
 import app.service.TokenService;
 import app.service.UserService;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Test;
 
-import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AuthResourceTest extends JerseyTest {
-    private Gson gson = new Gson();
+    private ObjectMapper objectMapper = new ObjectMapper();
     private UserService userService;
     private TokenService tokenService;
 
@@ -34,11 +36,11 @@ public class AuthResourceTest extends JerseyTest {
         userService = mock(UserService.class);
 
         forceSet(TestProperties.CONTAINER_PORT, "0");
-        return new ResourceConfig().register(new AuthResource(tokenService, userService));
+        return new ResourceConfig().packages("app.mappers").register(new AuthResource(tokenService, userService));
     }
 
     @Test
-    public void testSuccessfulAuth() throws UnauthorizedException {
+    public void testSuccessfulAuth() throws UnauthorizedException, IOException {
         String tokenString = "123";
 
         String username = "joe@example.com";
@@ -58,7 +60,8 @@ public class AuthResourceTest extends JerseyTest {
 
         assertEquals(200, response.getStatus());
 
-        Token receivedToken = gson.fromJson(response.readEntity(String.class), Token.class);
+        ObjectReader reader = objectMapper.readerFor(Token.class);
+        Token receivedToken = reader.readValue(response.readEntity(String.class));
 
 //        assertNull(receivedToken.getUsername());
 

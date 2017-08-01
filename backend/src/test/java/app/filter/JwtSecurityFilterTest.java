@@ -38,6 +38,7 @@ public class JwtSecurityFilterTest extends JerseyTest {
         JwtSecurityFilter filter = new JwtSecurityFilter(tokenService, userService);
         return new ResourceConfig().
                 register(filter).
+                packages("app.mappers").
                 register(RolesAllowedDynamicFeature.class).
                 register(MockAuthResource.class).
                 register(MockContentResource.class);

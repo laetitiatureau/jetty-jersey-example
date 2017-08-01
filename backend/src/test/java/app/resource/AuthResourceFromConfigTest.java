@@ -5,7 +5,7 @@ import app.data.Token;
 import app.data.User;
 import app.data.UserDirectory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectReader;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,9 +13,7 @@ import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.ws.rs.client.Entity;
@@ -38,7 +36,7 @@ public class AuthResourceFromConfigTest extends JerseyTest {
 
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS512;
     private static final Key signingKey = MacProvider.generateKey(signatureAlgorithm);
-    private static Gson gson = new Gson();
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected Application configure() {
@@ -67,14 +65,15 @@ public class AuthResourceFromConfigTest extends JerseyTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         Form form = new Form();
         form.param("username", "joe@example.com");
         form.param("password", "password1");
 
         Response response = target("users").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.form(form));
         assertEquals(200, response.getStatus());
-        Token receivedToken = gson.fromJson(response.readEntity(String.class), Token.class);
+        ObjectReader reader = objectMapper.readerFor(Token.class);
+        Token receivedToken = reader.readValue(response.readEntity(String.class));
         String tokenString = receivedToken.getToken();
 
         Claims claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(tokenString).getBody();

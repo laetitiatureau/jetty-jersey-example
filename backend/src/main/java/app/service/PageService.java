@@ -5,11 +5,8 @@ import app.data.PageList;
 import app.exception.EntityNotFoundException;
 
 public interface PageService {
-    Page getPage(String pageName) throws EntityNotFoundException;
-
+    Page getPage(String pageName);
     PageList getPageList();
-
-    boolean activatePage(String pageName) throws EntityNotFoundException;
-
-    boolean deactivatePage(String pageName) throws EntityNotFoundException;
+    boolean activatePage(String pageName);
+    boolean deactivatePage(String pageName);
 }

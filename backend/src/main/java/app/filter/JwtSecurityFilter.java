@@ -4,9 +4,8 @@ import app.Config;
 import app.data.Token;
 import app.data.User;
 import app.exception.EntityNotFoundException;
-import app.exception.InvalidTokenException;
-import app.service.JwtTokenService;
 import app.service.FileUserService;
+import app.service.JwtTokenService;
 import app.service.TokenService;
 import app.service.UserService;
 import org.glassfish.jersey.server.ContainerRequest;
@@ -78,11 +77,7 @@ public class JwtSecurityFilter implements ContainerRequestFilter {
 
         String jwtString = authHeader.replaceFirst("^[B|b][E|e][A|a][R|r][E|e][R|r]", "").trim();
 
-        try {
-            return tokenService.forJwtString(jwtString);
-        } catch (InvalidTokenException e) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-        }
+        return tokenService.forJwtString(jwtString);
     }
 
     private SecurityContext securityContextFromToken(final Token token) {

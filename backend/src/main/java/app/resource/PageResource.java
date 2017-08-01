@@ -2,7 +2,6 @@ package app.resource;
 
 import app.data.Page;
 import app.data.PageList;
-import app.exception.EntityNotFoundException;
 import app.service.DefaultPageService;
 import app.service.PageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,11 +41,7 @@ public class PageResource {
     @GET
     @Path("{pageName}")
     public Page getPage(@PathParam("pageName") String pageName) {
-        try {
-            return service.getPage(pageName);
-        } catch (EntityNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
+        return service.getPage(pageName);
     }
 
     @PUT
@@ -57,8 +52,6 @@ public class PageResource {
             return Response.ok(objectMapper.writeValueAsString(Collections.singletonMap("updated", String.valueOf(updated)))).build();
         } catch (JsonProcessingException e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        } catch (EntityNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
     }
 
@@ -66,12 +59,10 @@ public class PageResource {
     @Path("{pageName}")
     public Response deactivatePage(@PathParam("pageName") String pageName) {
         try {
-            boolean updated =  service.deactivatePage(pageName);
+            boolean updated = service.deactivatePage(pageName);
             return Response.ok(objectMapper.writeValueAsString(Collections.singletonMap("updated", String.valueOf(updated)))).build();
         } catch (JsonProcessingException e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        } catch (EntityNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
     }
 }

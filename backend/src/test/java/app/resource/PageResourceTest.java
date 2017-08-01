@@ -3,7 +3,9 @@ package app.resource;
 import app.data.Page;
 import app.data.PageList;
 import app.service.PageService;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -33,7 +35,8 @@ public class PageResourceTest extends JerseyTest {
 
     private Map<String, Page> pageIndex;
     private Set<Page> pages;
-    private Gson gson;
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
 
     @Override
     protected Application configure() {
@@ -54,7 +57,6 @@ public class PageResourceTest extends JerseyTest {
         pageIndex.put(activatedPage.getName(), activatedPage);
         pageIndex.put(deactivatedPage.getName(), deactivatedPage);
 
-        this.gson = new Gson();
         this.pages = Collections.unmodifiableSet(pages);
         this.pageIndex = Collections.unmodifiableMap(pageIndex);
         PageService service = mock(PageService.class);
@@ -62,8 +64,8 @@ public class PageResourceTest extends JerseyTest {
         when(service.getPageList()).thenReturn(new PageList(pages));
         when(service.getPage(fooPage.getName())).thenReturn(fooPage);
         when(service.getPage(barPage.getName())).thenReturn(barPage);
-        when(service.activatePage(activatedPage.getName())).thenReturn(activatedPage);
-        when(service.deactivatePage(deactivatedPage.getName())).thenReturn(deactivatedPage);
+        when(service.activatePage(activatedPage.getName())).thenReturn(true);
+        when(service.deactivatePage(deactivatedPage.getName())).thenReturn(true);
 
         when(service.getPage("invalid")).thenThrow(new NotFoundException());
         when(service.activatePage("invalid")).thenThrow(new NotFoundException());
@@ -74,25 +76,25 @@ public class PageResourceTest extends JerseyTest {
     }
 
     @Test
-    public void getPagesAsJson() {
+    public void getPagesAsJson() throws IOException {
         Response response = target("/pages").request(MediaType.APPLICATION_JSON).get();
         assertEquals(200, response.getStatus());
-        PageList result = gson.fromJson(response.readEntity(String.class), PageList.class);
+        PageList result = objectMapper.readerFor(PageList.class).readValue(response.readEntity(String.class));
         Set<Page> resultPages = new HashSet<>(result.getPages());
         assertEquals(pages, resultPages);
     }
 
     @Test
-    public void getExistingPages() {
+    public void getExistingPages() throws IOException {
         for (Page page : pages) {
             getExistingPageAsJson(page.getName());
         }
     }
 
-    private void getExistingPageAsJson(String name) {
+    private void getExistingPageAsJson(String name) throws IOException {
         Response response = target("/pages/" + name).request(MediaType.APPLICATION_JSON).get();
         assertEquals(200, response.getStatus());
-        Page resultPage = gson.fromJson(response.readEntity(String.class), Page.class);
+        Page resultPage = objectMapper.readerFor(Page.class).readValue(response.readEntity(String.class));
         assertEquals(pageIndex.get(name), resultPage);
     }
 
@@ -103,22 +105,24 @@ public class PageResourceTest extends JerseyTest {
     }
 
     @Test
-    public void activatePage() {
+    public void activatePage() throws JsonProcessingException {
         final String pageName = "activated";
         Response response = target("/pages/" + pageName).request(MediaType.APPLICATION_JSON)
                 .put(Entity.json(""));
         assertEquals(200, response.getStatus());
-        Page resultPage = gson.fromJson(response.readEntity(String.class), Page.class);
-        assertEquals(pageIndex.get(pageName), resultPage);
+        String payload = response.readEntity(String.class);
+        Map<String, String> expected = Collections.singletonMap("updated", "true");
+        assertEquals(objectWriter.writeValueAsString(expected), payload);
     }
 
     @Test
-    public void deactivatePage() {
+    public void deactivatePage() throws JsonProcessingException {
         final String pageName = "deactivated";
         Response response = target("/pages/" + pageName).request(MediaType.APPLICATION_JSON).delete();
         assertEquals(200, response.getStatus());
-        Page resultPage = gson.fromJson(response.readEntity(String.class), Page.class);
-        assertEquals(pageIndex.get(pageName), resultPage);
+        String payload = response.readEntity(String.class);
+        Map<String, String> expected = Collections.singletonMap("updated", "true");
+        assertEquals(objectWriter.writeValueAsString(expected), payload);
     }
 
     @Test

@@ -5,7 +5,6 @@ import app.data.PageList;
 import app.exception.EntityNotFoundException;
 import app.exception.PageServiceException;
 
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Configuration;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +41,7 @@ public class DefaultPageService implements PageService {
     }
 
     @Override
-    public Page getPage(final String pageName) throws EntityNotFoundException {
+    public Page getPage(final String pageName) {
         if (isInvalidPageName(pageName)) {
             throw new EntityNotFoundException();
         }
@@ -70,7 +69,7 @@ public class DefaultPageService implements PageService {
     }
 
     @Override
-    public boolean activatePage(final String pageName) throws EntityNotFoundException {
+    public boolean activatePage(final String pageName) {
         if (isInvalidPageName(pageName)) {
             throw new EntityNotFoundException();
         }
@@ -78,15 +77,14 @@ public class DefaultPageService implements PageService {
         ReentrantReadWriteLock lock = fileLocks.get(pageName);
         try {
             lock.writeLock().lock();
-            boolean changed = createPageFile(pageName);
-            return changed;
+            return createPageFile(pageName);
         } finally {
             lock.writeLock().unlock();
         }
     }
 
     @Override
-    public boolean deactivatePage(final String pageName) throws EntityNotFoundException {
+    public boolean deactivatePage(final String pageName) {
         if (isInvalidPageName(pageName)) {
             throw new EntityNotFoundException();
         }
@@ -94,8 +92,7 @@ public class DefaultPageService implements PageService {
         ReentrantReadWriteLock lock = fileLocks.get(pageName);
         try {
             lock.writeLock().lock();
-            boolean changed = removePageFile(pageName);
-            return changed;
+            return removePageFile(pageName);
         } finally {
             lock.writeLock().unlock();
         }

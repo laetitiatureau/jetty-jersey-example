@@ -1,4 +1,4 @@
 package app.exception;
 
-public class UnauthorizedException extends Exception {
+public class UnauthorizedException extends RuntimeException {
 }

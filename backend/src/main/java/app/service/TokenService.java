@@ -6,5 +6,5 @@ import app.exception.InvalidTokenException;
 
 public interface TokenService {
     Token forUser(User user);
-    Token forJwtString(String jwtString) throws InvalidTokenException;
+    Token forJwtString(String jwtString);
 }

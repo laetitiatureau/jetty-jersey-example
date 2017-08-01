@@ -70,10 +70,11 @@ class Main extends ResourceConfig {
         }));
     }
 
-    protected static ResourceConfig createResourceConfig(final Map<String, Object> cfg) throws IOException {
+    protected static ResourceConfig createResourceConfig(final Map<String, Object> cfg) {
         final ResourceConfig rc = new ResourceConfig();
 
         rc.addProperties(cfg);
+        rc.packages("app.mappers");
         rc.register(PageResource.class);
 
         if (Boolean.parseBoolean((String) cfg.get(Config.CORS))) {

@@ -3,8 +3,6 @@ package app.resource;
 import app.Config;
 import app.data.Token;
 import app.data.User;
-import app.exception.EntityNotFoundException;
-import app.exception.UnauthorizedException;
 import app.service.FileUserService;
 import app.service.JwtTokenService;
 import app.service.TokenService;
@@ -43,28 +41,18 @@ public class AuthResource {
     @PermitAll
     public Response authenticateUser(@FormParam("username") String userName,
                                      @FormParam("password") String password) {
-        try {
-            User user = userService.authenticate(userName, password);
-            Token token = authTokenFactory.forUser(user);
+        User user = userService.authenticate(userName, password);
+        Token token = authTokenFactory.forUser(user);
 
-            return Response.ok(token).build();
-        } catch (UnauthorizedException e) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-        } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return Response.ok(token).build();
     }
 
     @GET
     @Path("{username}")
     @RolesAllowed("admin")
     public Response getUser(@PathParam("username") String username) {
-        try {
-            User user = userService.getUser(username);
-            return Response.ok(user).build();
-        } catch (EntityNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
+        User user = userService.getUser(username);
+        return Response.ok(user).build();
     }
 
     @PUT
@@ -72,14 +60,8 @@ public class AuthResource {
     @Path("{username}")
     @RolesAllowed("admin")
     public Response createModifyUser(@PathParam("username") String username, @FormParam("password") String password) {
-        try {
-            User user = userService.addOrModifyUser(username, password, null);
-
-            return Response.ok(user).build();
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        User user = userService.addOrModifyUser(username, password, null);
+        return Response.ok(user).build();
     }
 
     @DELETE

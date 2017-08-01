@@ -79,7 +79,7 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User getUser(final String username) throws EntityNotFoundException {
+    public User getUser(final String username) {
         try {
             lock.readLock().lock();
 

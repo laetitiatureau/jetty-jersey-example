@@ -2,6 +2,7 @@ package app.service;
 
 import app.data.Page;
 import app.data.PageList;
+import app.exception.EntityNotFoundException;
 import app.exception.PageServiceException;
 import org.junit.Test;
 
@@ -19,22 +20,22 @@ import static org.mockito.Mockito.when;
 
 public class DefaultPageServiceTest {
 
-    @Test(expected = NotFoundException.class)
-    public void activateForinvalidPageNameShouldThrowException() throws IOException {
+    @Test(expected = EntityNotFoundException.class)
+    public void activateForinvalidPageNameShouldThrowException() throws IOException, EntityNotFoundException {
         Set<String> pageNames = Collections.singleton("foo");
         PageService service = new DefaultPageService(pageNames, "/tmp");
         service.activatePage("bar");
     }
 
-    @Test(expected = NotFoundException.class)
-    public void deactivateForinvalidPageNameShouldThrowException() throws IOException {
+    @Test(expected = EntityNotFoundException.class)
+    public void deactivateForinvalidPageNameShouldThrowException() throws IOException, EntityNotFoundException {
         Set<String> pageNames = Collections.singleton("foo");
         PageService service = new DefaultPageService(pageNames, "/tmp");
         service.deactivatePage("bar");
     }
 
-    @Test(expected = NotFoundException.class)
-    public void getPageForinvalidPageNameShouldThrowException() throws IOException {
+    @Test(expected = EntityNotFoundException.class)
+    public void getPageForinvalidPageNameShouldThrowException() throws IOException, EntityNotFoundException {
         Set<String> pageNames = Collections.singleton("foo");
         PageService service = new DefaultPageService(pageNames, "/tmp");
         service.getPage("bar");
@@ -57,7 +58,7 @@ public class DefaultPageServiceTest {
     }
 
     @Test
-    public void getPageConsistentWithGetPages() throws IOException {
+    public void getPageConsistentWithGetPages() throws IOException, EntityNotFoundException {
         final Set<String> allPages = new HashSet<>(Arrays.asList("foo", "bar", "baz"));
         final String tempDir = Files.createTempDirectory(null).toString();
 
@@ -73,7 +74,7 @@ public class DefaultPageServiceTest {
     }
 
     @Test
-    public void getPageForPageReturnsCorrectState() throws IOException {
+    public void getPageForPageReturnsCorrectState() throws IOException, EntityNotFoundException {
         final File tempDir = Files.createTempDirectory(null).toFile();
         tempDir.deleteOnExit();
 
@@ -98,7 +99,7 @@ public class DefaultPageServiceTest {
     }
 
     @Test
-    public void activatePageChangesState() throws IOException {
+    public void activatePageChangesState() throws IOException, EntityNotFoundException {
         final File tempDir = Files.createTempDirectory(null).toFile();
         tempDir.deleteOnExit();
         final String pageName = "foo";
@@ -108,13 +109,13 @@ public class DefaultPageServiceTest {
                 Collections.singleton(pageName), tempDir.toString());
 
         assertFalse(pageFile.exists());
-        Page page = pageService.activatePage(pageName);
+        boolean changed = pageService.activatePage(pageName);
         assertTrue(pageFile.exists());
-        assertTrue(page.isActive());
+        assertTrue(changed);
     }
 
     @Test(expected = PageServiceException.class)
-    public void activatePageFileCantBeWritten() throws IOException {
+    public void activatePageFileCantBeWritten() throws IOException, EntityNotFoundException {
         final File tempDir = Files.createTempDirectory(null).toFile();
         final String pageName = "foo";
         PageService pageService = new DefaultPageService(
@@ -124,7 +125,7 @@ public class DefaultPageServiceTest {
     }
 
     @Test
-    public void deactivatePageChangesState() throws IOException {
+    public void deactivatePageChangesState() throws IOException, EntityNotFoundException {
         final File tempDir = Files.createTempDirectory(null).toFile();
         tempDir.deleteOnExit();
         final String pageName = "foo";
@@ -135,15 +136,15 @@ public class DefaultPageServiceTest {
                 Collections.singleton(pageName), tempDir.toString());
 
         assertTrue(pageFile.exists());
-        Page page = pageService.deactivatePage(pageName);
+        boolean changed = pageService.deactivatePage(pageName);
         assertFalse(pageFile.exists());
-        assertFalse(page.isActive());
+        assertTrue(changed);
 
         pageService.deactivatePage(pageName);
     }
 
     @Test
-    public void deactivateInactivePageIsIgnored() throws IOException {
+    public void deactivateInactivePageIsIgnored() throws IOException, EntityNotFoundException {
         final File tempDir = Files.createTempDirectory(null).toFile();
         tempDir.deleteOnExit();
         final String pageName = "foo";
