@@ -32,9 +32,19 @@ class Main extends ResourceConfig {
                 .build();
     }
 
-    protected static HttpServer instantiateServer(final URI baseUri, final ResourceConfig application) {
+    protected static HttpServer instantiateServer(final URI baseUri, ResourceConfig rc) {
+        if ("true".equals(rc.getProperty(Config.SSL_ENABLED))) {
+            SSLContextConfigurator sslContent = new SSLContextConfigurator();
+            sslContent.setKeyStoreFile((String) rc.getProperty(Config.SSL_KEYSTORE));
+            sslContent.setKeyStorePass((String) rc.getProperty(Config.SSL_KEYPASS));
+            return GrizzlyHttpServerFactory.createHttpServer(baseUri, rc, true,
+                    new SSLEngineConfigurator(sslContent).setClientMode(false).setNeedClientAuth(true), false);
+        } else {
+            return GrizzlyHttpServerFactory.createHttpServer(baseUri, rc, false);
+        }
+    }
 
-        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseUri, application, false);
+    protected static void configureServer(HttpServer server, ResourceConfig application) {
 
         String webroot = (String) application.getProperty(Config.WEBROOT);
         if (webroot != null) {
@@ -58,8 +68,6 @@ class Main extends ResourceConfig {
             logger.info("Stopping server..");
             server.shutdown();
         }));
-
-        return server;
     }
 
     protected static ResourceConfig createResourceConfig(final Map<String, Object> cfg) throws IOException {
@@ -72,7 +80,7 @@ class Main extends ResourceConfig {
             rc.register(CORSFilter.class);
         }
 
-        if (Boolean.parseBoolean((String) cfg.get(Config.SECURE))) {
+        if (Boolean.parseBoolean((String) cfg.get(Config.AUTH))) {
             rc.register(AuthResource.class);
             rc.register(RolesAllowedDynamicFeature.class);
             rc.register(JwtSecurityFilter.class);
@@ -87,6 +95,7 @@ class Main extends ResourceConfig {
         ResourceConfig rc = createResourceConfig(cfg);
 
         final HttpServer server = instantiateServer(baseUri, rc);
+        configureServer(server, rc);
 
         try {
             server.start();

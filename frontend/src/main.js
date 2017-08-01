@@ -1,3 +1,6 @@
+require('bootstrap/dist/css/bootstrap.min.css')
+require('bootstrap/dist/css/bootstrap-theme.min.css')
+
 import Vue from 'vue'
 import VueResource from 'vue-resource'
 import VueRouter from 'vue-router'

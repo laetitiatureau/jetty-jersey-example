@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -100,7 +99,7 @@ public class ConfigTest {
     public void validKeyIfSecureConfigFlagSet() throws IOException {
         Properties properties = new Properties();
         properties.put(Config.PAGES, "page1");
-        properties.put(Config.SECURE, "true");
+        properties.put(Config.AUTH, "true");
 
         Map<String, Object> processed = Config.loadConfig(properties);
         assertEquals(SignatureAlgorithm.HS512, processed.get(Config.JWT_KEY_ALG));

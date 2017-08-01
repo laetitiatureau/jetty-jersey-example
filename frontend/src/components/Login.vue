@@ -6,8 +6,7 @@
       </h1>
       <notifications/>
       <div class="account-wall">
-        <img class="profile-img" src="https://cloud.githubusercontent.com/assets/398893/3528156/4d3d53a8-078c-11e4-8518-820d61886e7a.gif"
-alt="">
+        <img class="profile-img" src="../assets/user.png" alt="">
         <form @submit.prevent="login" class="form-signin">
           <input class="form-control" v-model="email" placeholder="email" type="text" required autofocus>
           <input class="form-control" v-model="pass" placeholder="password" type="password" required>

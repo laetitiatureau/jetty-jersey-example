@@ -8,6 +8,12 @@ module.exports = {
     publicPath: '/dist/',
     filename: 'build.js'
   },
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+    })
+  ],
   module: {
     rules: [
       {
@@ -30,7 +36,25 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
+      },
+      {
+        test: /\.css$/,
+        loaders: ['style-loader','css-loader']
+      },
+      {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url-loader?limit=10000&mimetype=application/octet-stream'
+      },
+      {
+        test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+      },
+      {
+        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'file-loader'
       }
+    ],
+    loaders: [
     ]
   },
   resolve: {
@@ -57,12 +81,12 @@ if (process.env.NODE_ENV === 'production') {
         NODE_ENV: '"production"'
       }
     }),
-    // new webpack.optimize.UglifyJsPlugin({
-    //   sourceMap: true,
-    //   compress: {
-    //     warnings: false
-    //   }
-    // }),
+    new webpack.optimize.UglifyJsPlugin({
+      sourceMap: true,
+      compress: {
+        warnings: false
+      }
+    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })

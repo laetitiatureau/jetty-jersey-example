@@ -18,11 +18,14 @@ public class Config {
     public static final String CONFDIR = "confdir";
     public static final String CORS = "http.cors";
     public static final String HTTP_PORT = "http.port";
+    public static final String SSL_ENABLED = "ssl.enabled";
+    public static final String SSL_KEYSTORE = "ssl.keystore";
+    public static final String SSL_KEYPASS = "ssl.keypass";
     public static final String HTTP_URI = "http.uri";
     public static final String JWT_KEY = "jwt.key";
     public static final String JWT_KEY_ALG = "jwt.keyalg";
     public static final String PAGES = "pages";
-    public static final String SECURE = "auth";
+    public static final String AUTH = "auth";
     public static final String WEBCACHE = "webcache";
     public static final String WEBROOT = "webroot";
     public static final String WORKDIR = "workdir";
@@ -74,14 +77,14 @@ public class Config {
 
         cfg.put(CORS, props.getProperty(CORS, "false"));
 
-        String secure = props.getProperty(SECURE, "false");
+        String secure = props.getProperty(AUTH, "false");
         if ("true".equals(secure)) {
             SignatureAlgorithm algorithm = SignatureAlgorithm.HS512;
             cfg.put(JWT_KEY, MacProvider.generateKey(algorithm));
             cfg.put(JWT_KEY_ALG, algorithm);
         }
 
-        cfg.put(SECURE, props.getProperty(SECURE, "false"));
+        cfg.put(AUTH, props.getProperty(AUTH, "false"));
 
         if (props.getProperty(CONFDIR) != null) {
             String confDirString = props.getProperty(CONFDIR);
@@ -98,6 +101,18 @@ public class Config {
             cfg.put(CONFDIR, tmpConfDir);
             logger.warning("Config setting for 'confdir' not defined - " +
                     "using temporary directory. Files will be deleted on shutdown.");
+        }
+
+        cfg.put(SSL_ENABLED, props.getProperty(SSL_ENABLED, "false"));
+        if ("true".equals(cfg.get(SSL_ENABLED))) {
+            String keystoreFile = props.getProperty(SSL_KEYSTORE);
+
+            if (keystoreFile != null && !(new File(keystoreFile).exists())) {
+                throw new ConfigurationException("Config setting for 'ssl.keystore' is invalid - can't access file");
+            }
+
+            cfg.put(SSL_KEYSTORE, keystoreFile);
+            cfg.put(SSL_KEYPASS, props.getProperty(SSL_KEYPASS));
         }
 
         for (Map.Entry<String, Object> entry : cfg.entrySet()) {

@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -38,6 +37,7 @@ public class MainTest {
         resourceConfig.property(Config.WORKDIR, tempDir.toString());
 
         HttpServer server = Main.instantiateServer(uri, resourceConfig);
+        Main.configureServer(server, resourceConfig);
         assertEquals(false,
                 server.getListener("grizzly").getFileCache().isEnabled());
     }
@@ -58,12 +58,12 @@ public class MainTest {
         Map<String, Object> cfg = new HashMap<>();
         cfg.put("foo", 1);
         cfg.put(Config.CORS, "true");
-        cfg.put(Config.SECURE, "true");
+        cfg.put(Config.AUTH, "true");
 
         ResourceConfig rc = Main.createResourceConfig(cfg);
 
         assertEquals("true", rc.getProperty(Config.CORS));
-        assertEquals("true", rc.getProperty(Config.SECURE));
+        assertEquals("true", rc.getProperty(Config.AUTH));
         assertEquals(1, rc.getProperty("foo"));
 
         assertThat(rc.getClasses(), hasItem(PageResource.class));
