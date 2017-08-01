@@ -20,29 +20,29 @@
 <script>
 import auth from '../auth'
 
-export default {
-  name: 'login',
-  data () {
-    return {
-      email: 'joe@example.com',
-      pass: ''
-    }
-  },
-  methods: {
-    login() {
-      auth.login(this, this.email, this.pass, loggedIn => {
-        if (!loggedIn) {
-          this.$notify({
-            type: 'error',
-            text: 'Login failed.'
-          });
-        } else {
-          this.$router.replace(this.$route.query.redirect || '/')
-        }
-      })
+  export default {
+    name: 'login',
+    data () {
+      return {
+        email: 'joe@example.com',
+        pass: ''
+      }
+    },
+    methods: {
+      login() {
+        auth.login(this, this.email, this.pass, loggedIn => {
+          if (!loggedIn) {
+            this.$notify({
+              type: 'error',
+              text: 'Login failed.'
+            });
+          } else {
+            this.$router.replace(this.$route.query.redirect || '/')
+          }
+        })
+      }
     }
   }
-}
 </script>
 
 <style>
@@ -79,12 +79,12 @@ export default {
 }
 
 .account-wall {
-    margin-top: 20px;
-    padding: 40px 0px 20px 0px;
-    background-color: #f7f7f7;
-    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  margin-top: 20px;
+  padding: 40px 0px 20px 0px;
+  background-color: #f7f7f7;
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
 .login-title {
@@ -95,13 +95,13 @@ export default {
 }
 
 .profile-img {
-    width: 96px;
-    height: 96px;
-    margin: 0 auto 10px;
-    display: block;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 10px;
+  display: block;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
 }
 
 </style>

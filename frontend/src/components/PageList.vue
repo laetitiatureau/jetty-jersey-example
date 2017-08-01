@@ -1,5 +1,5 @@
 <template>
-  <div>
+    <div v-if="pages.length != 0">
   <h3>{{ title }}</h3>
   <table class="table table-striped">
     <tbody>
