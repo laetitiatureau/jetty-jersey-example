@@ -73,7 +73,7 @@ import PageList from './PageList.vue'
           if (response.body.updated === 'true') {
             this.$notify({
               type: 'success',
-              title: 'Operation successful',
+              title: 'Update successful',
               duration: 5000,
               text: 'Page ' + page.name + ' ' + (page.active ? 'activated' : 'deactivated')
             });
@@ -81,16 +81,19 @@ import PageList from './PageList.vue'
         }
 
         var errorHandler = (response) => {
-          var errorMessage
+          var errorMessage = 'Failed to update page ' + page.name
+          var errorTitle
 
           if (response.status === 401) {
-            errorMessage = 'Page ' + page.name + ' - authentication failed'
+            errorTitle = 'Authentication Failure'
           } else {
-            errorMessage = 'Page ' + page.name + ' - server error'
+            errorTitle = 'Server Error'
           }
 
           this.$notify({
             type: 'error',
+            title: errorTitle,
+            duration: 5000,
             text: errorMessage
           });
         }
