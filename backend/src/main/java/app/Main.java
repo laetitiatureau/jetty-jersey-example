@@ -1,7 +1,7 @@
 package app;
 
-import app.filter.JwtSecurityFilter;
 import app.filter.CORSFilter;
+import app.filter.JwtSecurityFilter;
 import app.resource.AuthResource;
 import app.resource.PageResource;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
@@ -14,6 +14,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import javax.ws.rs.core.UriBuilder;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
@@ -107,8 +109,31 @@ class Main extends ResourceConfig {
         }
     }
 
+    private static Properties loadPropertiesFromFile(String directory, String fileName) throws IOException {
+        Properties properties = new Properties();
+
+        File f = directory == null ? new File(fileName) : new File(directory, fileName);
+        if (!f.exists()) {
+            return properties;
+        }
+
+        try (FileInputStream fis = new FileInputStream(f)) {
+            properties.load(fis);
+            logger.info("Loading application config from " + f.getAbsolutePath());
+        }
+
+        return properties;
+    }
+
     public static void main(String[] args) throws Exception {
-        startServer(System.getProperties());
+        Properties config = loadPropertiesFromFile(
+                System.getProperty(Config.CONFDIR),
+                "app.properties"
+        );
+
+        config.putAll(System.getProperties());
+
+        startServer(config);
     }
 }
 
