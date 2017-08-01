@@ -5,11 +5,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Config {
@@ -77,13 +79,6 @@ public class Config {
 
         cfg.put(CORS, props.getProperty(CORS, "false"));
 
-        String secure = props.getProperty(AUTH, "false");
-        if ("true".equals(secure)) {
-            SignatureAlgorithm algorithm = SignatureAlgorithm.HS512;
-            cfg.put(JWT_KEY, MacProvider.generateKey(algorithm));
-            cfg.put(JWT_KEY_ALG, algorithm);
-        }
-
         cfg.put(AUTH, props.getProperty(AUTH, "false"));
 
         if (props.getProperty(CONFDIR) != null) {
@@ -103,6 +98,15 @@ public class Config {
                     "using temporary directory. Files will be deleted on shutdown.");
         }
 
+        String secure = props.getProperty(AUTH, "false");
+        if ("true".equals(secure)) {
+            SignatureAlgorithm algorithm = SignatureAlgorithm.HS512;
+            File confDir = (File) cfg.get(CONFDIR);
+            File keyFile = new File(confDir, "jwt.jceks");
+            cfg.put(JWT_KEY, loadOrCreateKey(keyFile, "jwt", algorithm));
+            cfg.put(JWT_KEY_ALG, algorithm);
+        }
+
         cfg.put(SSL_ENABLED, props.getProperty(SSL_ENABLED, "false"));
         if ("true".equals(cfg.get(SSL_ENABLED))) {
             String keystoreFile = props.getProperty(SSL_KEYSTORE);
@@ -120,5 +124,42 @@ public class Config {
         }
 
         return cfg;
+    }
+
+    /*
+     * Load a secret key with the given alias from keyFile. If such a key doesn't exist, generate a new key with
+     * the given algorithm and save it to keyFile.
+     */
+    private static Key loadOrCreateKey(final File keyFile, final String alias, SignatureAlgorithm algorithm) {
+        final String keystoreType = "JCEKS";
+        final char[] secret = "secret".toCharArray();
+
+        try {
+            KeyStore keyStore = KeyStore.getInstance(keystoreType);
+            if (keyFile.exists()) {
+                try (FileInputStream fis = new FileInputStream(keyFile)) {
+                    keyStore.load(fis, secret);
+                }
+            } else {
+                keyStore.load(null, secret);
+            }
+
+            if (!keyStore.containsAlias(alias)) {
+                Key newKey = MacProvider.generateKey(algorithm);
+                keyStore.setKeyEntry(alias, newKey, secret, null);
+                try (FileOutputStream fos = new FileOutputStream(keyFile)) {
+                    keyStore.store(fos, secret);
+                }
+                logger.info("Generating new signing key for jwt auth");
+                return newKey;
+            } else {
+                logger.info("Reusing existing signing key for jwt auth");
+                return keyStore.getKey(alias, secret);
+            }
+
+        } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
+            throw new ConfigurationException("Failed to create or load jwt key", e);
+        }
+
     }
 }
