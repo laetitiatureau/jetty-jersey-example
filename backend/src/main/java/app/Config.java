@@ -79,8 +79,6 @@ public class Config {
 
         cfg.put(CORS, props.getProperty(CORS, "false"));
 
-        cfg.put(AUTH, props.getProperty(AUTH, "false"));
-
         if (props.getProperty(CONFDIR) != null) {
             String confDirString = props.getProperty(CONFDIR);
             File confDir = new File(confDirString);
@@ -98,8 +96,8 @@ public class Config {
                     "using temporary directory. Files will be deleted on shutdown.");
         }
 
-        String secure = props.getProperty(AUTH, "false");
-        if ("true".equals(secure)) {
+        cfg.put(AUTH, props.getProperty(AUTH, "true"));
+        if ("true".equals(cfg.get(AUTH))) {
             SignatureAlgorithm algorithm = SignatureAlgorithm.HS512;
             File confDir = (File) cfg.get(CONFDIR);
             File keyFile = new File(confDir, "jwt.jceks");
